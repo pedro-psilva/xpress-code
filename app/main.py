@@ -4,9 +4,11 @@ A documentação OpenAPI/Swagger fica disponível em /docs (nativo do FastAPI).
 """
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 
 from app.core.database import close_mongo_connection, connect_to_mongo
+from app.core.exceptions import DomainError
 from app.routers import health
 
 
@@ -23,6 +25,16 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan,
 )
+
+
+@app.exception_handler(DomainError)
+async def domain_error_handler(request: Request, exc: DomainError) -> JSONResponse:
+    """Converte erros de domínio em resposta JSON com o status HTTP adequado."""
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"status": exc.status_code, "detail": exc.detail},
+    )
+
 
 app.include_router(health.router)
 
