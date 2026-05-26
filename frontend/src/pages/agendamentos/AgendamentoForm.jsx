@@ -4,6 +4,7 @@ import { criarAgendamento } from '../../api/agendamentos'
 import { listarUsuarios } from '../../api/usuarios'
 import { listarServicos } from '../../api/servicos'
 import { getErrorMessage } from '../../api/client'
+import { useAuth } from '../../auth/AuthContext'
 import {
   PageHeader,
   Card,
@@ -16,10 +17,13 @@ import {
 
 export default function AgendamentoForm() {
   const navigate = useNavigate()
+  const { perfil, userId } = useAuth()
+  const ehCliente = perfil === 'cliente'
   const [usuarios, setUsuarios] = useState([])
   const [servicos, setServicos] = useState([])
   const [form, setForm] = useState({
-    cliente_id: '',
+    // O cliente marca sempre para si mesmo; o admin escolhe o cliente.
+    cliente_id: ehCliente ? userId : '',
     profissional_id: '',
     servico_id: '',
     data_hora_inicio: '',
@@ -66,21 +70,23 @@ export default function AgendamentoForm() {
       <ErrorBanner message={erro} />
       <Card className="p-6">
         <form onSubmit={handleSubmit} className="grid gap-4 max-w-lg">
-          <Field label="Cliente">
-            <select
-              className={inputClass}
-              value={form.cliente_id}
-              onChange={(e) => update('cliente_id', e.target.value)}
-              required
-            >
-              <option value="">Selecione…</option>
-              {clientes.map((u) => (
-                <option key={u.id} value={u.id}>
-                  {u.nome}
-                </option>
-              ))}
-            </select>
-          </Field>
+          {!ehCliente && (
+            <Field label="Cliente">
+              <select
+                className={inputClass}
+                value={form.cliente_id}
+                onChange={(e) => update('cliente_id', e.target.value)}
+                required
+              >
+                <option value="">Selecione…</option>
+                {clientes.map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.nome}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          )}
           <Field label="Profissional">
             <select
               className={inputClass}

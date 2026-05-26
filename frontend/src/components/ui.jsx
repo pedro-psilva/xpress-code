@@ -46,6 +46,16 @@ export function Card({ children, className = '' }) {
   )
 }
 
+export function StatCard({ label, value, hint }) {
+  return (
+    <Card className="p-5">
+      <p className="text-sm font-medium text-slate-500">{label}</p>
+      <p className="mt-2 text-3xl font-bold text-slate-800">{value}</p>
+      {hint && <p className="mt-1 text-xs text-slate-400">{hint}</p>}
+    </Card>
+  )
+}
+
 export function Loading({ label = 'Carregando…' }) {
   return (
     <div className="flex items-center gap-3 text-slate-500 py-10 justify-center">
