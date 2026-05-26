@@ -21,6 +21,12 @@ class Settings(BaseSettings):
     # API
     api_v1_prefix: str = "/api/v1"
 
+    # CORS — origens permitidas para o frontend (SPA)
+    cors_origins: list[str] = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ]
+
     # JWT (usado a partir do M2)
     jwt_secret: str = "troque-este-valor"
     jwt_algorithm: str = "HS256"
