@@ -21,3 +21,9 @@ build/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Documentos internos de planejamento (não versionar)
+CLAUDE.md
+PRIORIZACAO.md
+TrabalhoPraticoSemestral.md
+escopo.md

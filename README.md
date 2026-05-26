@@ -3,8 +3,6 @@
 SaaS de gestão para barbearias: agendamentos, catálogo de serviços e usuários.
 Trabalho Prático Semestral — *Arquitetura de Aplicações Web (2026.1)*.
 
-> 📋 Especificação: [escopo.md](./escopo.md) · Requisitos: [TrabalhoPraticoSemestral.md](./TrabalhoPraticoSemestral.md) · Roadmap: [PRIORIZACAO.md](./PRIORIZACAO.md)
-
 ## Stack
 
 - **Backend:** Python 3.11+ / FastAPI
