@@ -4,6 +4,8 @@ import Home from './pages/Home'
 import ServicosList from './pages/servicos/ServicosList'
 import ServicoForm from './pages/servicos/ServicoForm'
 import ServicoDetail from './pages/servicos/ServicoDetail'
+import UsuariosList from './pages/usuarios/UsuariosList'
+import UsuarioForm from './pages/usuarios/UsuarioForm'
 
 export default function App() {
   return (
@@ -15,6 +17,9 @@ export default function App() {
         <Route path="/servicos/novo" element={<ServicoForm />} />
         <Route path="/servicos/:id" element={<ServicoDetail />} />
         <Route path="/servicos/:id/editar" element={<ServicoForm />} />
+
+        <Route path="/usuarios" element={<UsuariosList />} />
+        <Route path="/usuarios/novo" element={<UsuarioForm />} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
