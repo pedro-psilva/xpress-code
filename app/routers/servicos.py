@@ -1,6 +1,7 @@
 """Endpoints REST de Serviços."""
 from fastapi import APIRouter, Depends, status
 
+from app.core.auth import require_admin
 from app.core.dependencies import get_servico_service
 from app.models.servico import ServicoCreate, ServicoOut
 from app.services.servico_service import ServicoService
@@ -22,7 +23,8 @@ async def buscar(servico_id: str, service: ServicoService = Depends(get_servico_
     "",
     response_model=ServicoOut,
     status_code=status.HTTP_201_CREATED,
-    summary="Cria um novo serviço",
+    summary="Cria um novo serviço (admin)",
+    dependencies=[Depends(require_admin)],
 )
 async def criar(
     payload: ServicoCreate, service: ServicoService = Depends(get_servico_service)
@@ -30,7 +32,12 @@ async def criar(
     return await service.criar(payload)
 
 
-@router.put("/{servico_id}", response_model=ServicoOut, summary="Atualiza um serviço (integral)")
+@router.put(
+    "/{servico_id}",
+    response_model=ServicoOut,
+    summary="Atualiza um serviço integral (admin)",
+    dependencies=[Depends(require_admin)],
+)
 async def atualizar(
     servico_id: str,
     payload: ServicoCreate,
@@ -42,7 +49,8 @@ async def atualizar(
 @router.delete(
     "/{servico_id}",
     status_code=status.HTTP_204_NO_CONTENT,
-    summary="Desativa um serviço (remoção lógica)",
+    summary="Desativa um serviço — remoção lógica (admin)",
+    dependencies=[Depends(require_admin)],
 )
 async def remover(servico_id: str, service: ServicoService = Depends(get_servico_service)):
     await service.desativar(servico_id)
