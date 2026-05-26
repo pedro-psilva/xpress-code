@@ -5,6 +5,13 @@ const baseURL =
 
 export const api = axios.create({ baseURL })
 
+// Anexa o token JWT (quando houver) em toda requisição.
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token')
+  if (token) config.headers.Authorization = `Bearer ${token}`
+  return config
+})
+
 /** Extrai a mensagem do erro padronizado do backend ({ status, detail }). */
 export function getErrorMessage(error) {
   return (
