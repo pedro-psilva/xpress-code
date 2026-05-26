@@ -8,7 +8,7 @@ Trabalho Prático Semestral — *Arquitetura de Aplicações Web (2026.1)*.
 - **Backend:** Python 3.11+ / FastAPI
 - **Banco:** MongoDB (via Docker)
 - **Frontend:** React + Vite + Tailwind CSS (SPA com React Router e Axios)
-- **Auth:** JWT + RBAC — *em construção*
+- **Auth:** JWT (login/registro) + RBAC (perfis `admin` / `profissional` / `cliente`)
 
 ## Pré-requisitos
 
@@ -30,7 +30,10 @@ pip install -r requirements.txt
 # 3. Configurar variáveis de ambiente
 copy .env.example .env        # Windows  (cp no Linux/macOS)
 
-# 4. Rodar a API
+# 4. (Opcional) Criar o usuário admin inicial — necessário para ações de admin
+py -m scripts.seed            # cria admin@xpress.com / senha: admin123
+
+# 5. Rodar a API
 uvicorn app.main:app --reload
 ```
 
@@ -59,35 +62,62 @@ Com a API no ar, acesse a documentação interativa em:
 
 Para validar a infraestrutura: `GET /health` e `GET /health/db`.
 
+## Autenticação e perfis (RBAC)
+
+A API usa **JWT**. Faça login e envie o token no header
+`Authorization: Bearer <token>`. Há três perfis: `admin`, `profissional` e
+`cliente`. O auto-registro cria sempre `cliente`; perfis privilegiados são
+criados por um admin (ou via `scripts/seed.py`).
+
+Legenda de acesso: **🔓 público** · **autenticado** (qualquer perfil logado) · **admin** (só administradores).
+
 ## Endpoints
 
 Prefixo base: `/api/v1`.
 
+### Autenticação
+| Método | Rota | Acesso | Descrição |
+|--------|------|--------|-----------|
+| POST   | `/auth/register` | 🔓 | Auto-registro (cria `cliente`) |
+| POST   | `/auth/login`    | 🔓 | Retorna o token JWT |
+
 ### Serviços
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| GET    | `/servicos`        | Lista os serviços |
-| GET    | `/servicos/{id}`   | Busca por ID |
-| POST   | `/servicos`        | Cria um serviço |
-| PUT    | `/servicos/{id}`   | Atualização integral |
-| DELETE | `/servicos/{id}`   | Remoção lógica (`ativo=false`) |
+| Método | Rota | Acesso | Descrição |
+|--------|------|--------|-----------|
+| GET    | `/servicos`        | 🔓 | Lista os serviços |
+| GET    | `/servicos/{id}`   | 🔓 | Busca por ID |
+| POST   | `/servicos`        | admin | Cria um serviço |
+| PUT    | `/servicos/{id}`   | admin | Atualização integral |
+| DELETE | `/servicos/{id}`   | admin | Remoção lógica (`ativo=false`) |
 
 ### Usuários
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| GET    | `/usuarios`        | Lista os usuários |
-| GET    | `/usuarios/{id}`   | Busca por ID |
-| POST   | `/usuarios`        | Cria um usuário |
-| PUT    | `/usuarios/{id}`   | Atualiza um usuário |
-| DELETE | `/usuarios/{id}`   | Remove um usuário |
+| Método | Rota | Acesso | Descrição |
+|--------|------|--------|-----------|
+| GET    | `/usuarios`        | autenticado | Lista os usuários |
+| GET    | `/usuarios/{id}`   | autenticado | Busca por ID |
+| POST   | `/usuarios`        | admin | Cria um usuário (qualquer perfil) |
+| PUT    | `/usuarios/{id}`   | admin | Atualiza um usuário |
+| DELETE | `/usuarios/{id}`   | admin | Remove um usuário |
 
 ### Agendamentos
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| GET    | `/agendamentos`        | Lista (filtros: `cliente_id`, `profissional_id`, `data`) |
-| GET    | `/agendamentos/{id}`   | Busca por ID |
-| POST   | `/agendamentos`        | Cria (valida cliente/profissional/serviço; calcula término) |
-| DELETE | `/agendamentos/{id}`   | Cancela (status → `cancelado`) |
+| Método | Rota | Acesso | Descrição |
+|--------|------|--------|-----------|
+| GET    | `/agendamentos`        | autenticado | Lista (filtros: `cliente_id`, `profissional_id`, `data`) |
+| GET    | `/agendamentos/{id}`   | autenticado | Busca por ID |
+| POST   | `/agendamentos`        | autenticado | Cria (valida cliente/profissional/serviço; calcula término) |
+| DELETE | `/agendamentos/{id}`   | autenticado | Cancela (status → `cancelado`) |
+
+## Testes
+
+Testes unitários da camada de serviço (pytest), sem depender do MongoDB:
+
+```bash
+pytest
+```
+
+## Princípios SOLID
+
+A aplicação dos princípios está documentada em [SOLID.md](./SOLID.md).
 
 ## Variáveis de ambiente
 
