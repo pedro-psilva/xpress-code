@@ -10,7 +10,7 @@ from fastapi.responses import JSONResponse
 from app.core.config import settings
 from app.core.database import close_mongo_connection, connect_to_mongo
 from app.core.exceptions import DomainError
-from app.routers import health, servicos, usuarios
+from app.routers import agendamentos, health, servicos, usuarios
 
 
 @asynccontextmanager
@@ -40,6 +40,7 @@ async def domain_error_handler(request: Request, exc: DomainError) -> JSONRespon
 app.include_router(health.router)
 app.include_router(servicos.router, prefix=settings.api_v1_prefix)
 app.include_router(usuarios.router, prefix=settings.api_v1_prefix)
+app.include_router(agendamentos.router, prefix=settings.api_v1_prefix)
 
 
 @app.get("/", tags=["root"], summary="Informações básicas da API")
