@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { buscarServico, desativarServico } from '../../api/servicos'
 import { getErrorMessage } from '../../api/client'
+import { useAuth } from '../../auth/AuthContext'
 import {
   PageHeader,
   LinkButton,
@@ -14,6 +15,7 @@ import {
 export default function ServicoDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { isAdmin } = useAuth()
   const [servico, setServico] = useState(null)
   const [loading, setLoading] = useState(true)
   const [erro, setErro] = useState('')
@@ -44,14 +46,16 @@ export default function ServicoDetail() {
       <PageHeader
         title={servico.nome}
         action={
-          <div className="flex gap-2">
-            <LinkButton to={`/servicos/${id}/editar`} variant="secondary">
-              Editar
-            </LinkButton>
-            <Button variant="danger" onClick={handleDesativar}>
-              Desativar
-            </Button>
-          </div>
+          isAdmin && (
+            <div className="flex gap-2">
+              <LinkButton to={`/servicos/${id}/editar`} variant="secondary">
+                Editar
+              </LinkButton>
+              <Button variant="danger" onClick={handleDesativar}>
+                Desativar
+              </Button>
+            </div>
+          )
         }
       />
       <Card className="p-6 grid gap-4 sm:grid-cols-3">

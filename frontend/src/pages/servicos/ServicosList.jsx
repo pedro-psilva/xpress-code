@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { listarServicos } from '../../api/servicos'
 import { getErrorMessage } from '../../api/client'
+import { useAuth } from '../../auth/AuthContext'
 import {
   PageHeader,
   LinkButton,
@@ -16,6 +17,7 @@ export default function ServicosList() {
   const [loading, setLoading] = useState(true)
   const [erro, setErro] = useState('')
   const navigate = useNavigate()
+  const { isAdmin } = useAuth()
 
   useEffect(() => {
     listarServicos()
@@ -29,7 +31,9 @@ export default function ServicosList() {
       <PageHeader
         title="Serviços"
         subtitle="Catálogo de serviços oferecidos."
-        action={<LinkButton to="/servicos/novo">+ Novo serviço</LinkButton>}
+        action={
+          isAdmin && <LinkButton to="/servicos/novo">+ Novo serviço</LinkButton>
+        }
       />
       <ErrorBanner message={erro} />
       {loading ? (

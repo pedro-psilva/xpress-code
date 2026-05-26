@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { listarUsuarios, removerUsuario } from '../../api/usuarios'
 import { getErrorMessage } from '../../api/client'
+import { useAuth } from '../../auth/AuthContext'
 import {
   PageHeader,
   LinkButton,
@@ -21,6 +22,7 @@ export default function UsuariosList() {
   const [usuarios, setUsuarios] = useState([])
   const [loading, setLoading] = useState(true)
   const [erro, setErro] = useState('')
+  const { isAdmin } = useAuth()
 
   function carregar() {
     setLoading(true)
@@ -47,7 +49,9 @@ export default function UsuariosList() {
       <PageHeader
         title="Usuários"
         subtitle="Clientes, profissionais e administradores."
-        action={<LinkButton to="/usuarios/novo">+ Novo usuário</LinkButton>}
+        action={
+          isAdmin && <LinkButton to="/usuarios/novo">+ Novo usuário</LinkButton>
+        }
       />
       <ErrorBanner message={erro} />
       {loading ? (
@@ -80,9 +84,11 @@ export default function UsuariosList() {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <Button variant="danger" onClick={() => handleRemover(u.id)}>
-                      Remover
-                    </Button>
+                    {isAdmin && (
+                      <Button variant="danger" onClick={() => handleRemover(u.id)}>
+                        Remover
+                      </Button>
+                    )}
                   </td>
                 </tr>
               ))}
