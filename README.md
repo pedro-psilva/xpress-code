@@ -24,8 +24,8 @@ Trabalho Prático Semestral — *Arquitetura de Aplicações Web (2026.1)*.
 docker-compose up -d
 
 # 2. Criar o ambiente virtual e instalar dependências
-python -m venv .venv
-.venv\Scripts\activate        # Windows (PowerShell: .venv\Scripts\Activate.ps1)
+py -m venv .venv              # Windows (use 'python3' no Linux/macOS)
+.venv\Scripts\Activate.ps1    # Windows PowerShell
 # source .venv/bin/activate   # Linux/macOS
 pip install -r requirements.txt
 
