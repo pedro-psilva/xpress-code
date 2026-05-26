@@ -1,15 +1,13 @@
 """Regras de negócio de Agendamentos.
 
 Valida a integridade do relacionamento (cliente, profissional e serviço
-precisam existir) e calcula o término a partir da duração do serviço.
-
-NOTA M3 (Essencial): a validação de conflito de horário do mesmo
-profissional será adicionada no método `criar` na Camada 3.
+precisam existir), calcula o término a partir da duração do serviço e impede
+que o mesmo profissional tenha dois agendamentos com horários sobrepostos.
 """
 from datetime import date, datetime, timedelta
 from typing import Any
 
-from app.core.exceptions import NotFoundError, ValidationError
+from app.core.exceptions import ConflictError, NotFoundError, ValidationError
 from app.models.agendamento import AgendamentoCreate, StatusAgendamento
 from app.repositories.base import AbstractRepository
 
@@ -61,6 +59,9 @@ class AgendamentoService:
 
         inicio = data.data_hora_inicio
         fim = inicio + timedelta(minutes=int(servico["duracao_minutos"]))
+
+        await self._validar_conflito(data.profissional_id, inicio, fim)
+
         doc = {
             "cliente_id": data.cliente_id,
             "profissional_id": data.profissional_id,
@@ -70,6 +71,24 @@ class AgendamentoService:
             "status": StatusAgendamento.agendado.value,
         }
         return await self._repo.create(doc)
+
+    async def _validar_conflito(
+        self, profissional_id: str, inicio: datetime, fim: datetime
+    ) -> None:
+        """Rejeita sobreposição de horário do mesmo profissional.
+
+        Dois intervalos [a_inicio, a_fim) e [b_inicio, b_fim) se sobrepõem
+        quando a_inicio < b_fim e a_fim > b_inicio. Agendamentos cancelados
+        liberam o horário e são ignorados.
+        """
+        existentes = await self._repo.list({"profissional_id": profissional_id})
+        for ag in existentes:
+            if ag.get("status") == StatusAgendamento.cancelado.value:
+                continue
+            if inicio < ag["data_hora_fim"] and fim > ag["data_hora_inicio"]:
+                raise ConflictError(
+                    "O profissional já possui um agendamento nesse horário."
+                )
 
     async def cancelar(self, agendamento_id: str) -> None:
         """Cancelamento lógico: status -> cancelado (preserva o histórico)."""
