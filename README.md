@@ -7,7 +7,7 @@ Trabalho Prático Semestral — *Arquitetura de Aplicações Web (2026.1)*.
 
 - **Backend:** Python 3.11+ / FastAPI
 - **Banco:** MongoDB (via Docker)
-- **Frontend:** React (SPA assíncrona) — *em construção*
+- **Frontend:** React + Vite + Tailwind CSS (SPA com React Router e Axios)
 - **Auth:** JWT + RBAC — *em construção*
 
 ## Pré-requisitos
@@ -33,6 +33,22 @@ copy .env.example .env        # Windows  (cp no Linux/macOS)
 # 4. Rodar a API
 uvicorn app.main:app --reload
 ```
+
+A API sobe em `http://localhost:8000`.
+
+### Frontend (SPA React)
+
+Em outro terminal, com a API no ar:
+
+```bash
+cd frontend
+npm install
+copy .env.example .env        # opcional (usa http://localhost:8000/api/v1 por padrão)
+npm run dev
+```
+
+A interface fica em `http://localhost:5173`. A navegação entre as telas
+(lista → detalhe → formulário) é assíncrona, sem recarregar a página.
 
 ## Documentação da API (Swagger)
 
