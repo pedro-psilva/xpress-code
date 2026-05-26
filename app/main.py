@@ -7,9 +7,10 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
+from app.core.config import settings
 from app.core.database import close_mongo_connection, connect_to_mongo
 from app.core.exceptions import DomainError
-from app.routers import health
+from app.routers import health, servicos
 
 
 @asynccontextmanager
@@ -37,6 +38,7 @@ async def domain_error_handler(request: Request, exc: DomainError) -> JSONRespon
 
 
 app.include_router(health.router)
+app.include_router(servicos.router, prefix=settings.api_v1_prefix)
 
 
 @app.get("/", tags=["root"], summary="Informações básicas da API")
