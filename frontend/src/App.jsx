@@ -6,6 +6,8 @@ import ServicoForm from './pages/servicos/ServicoForm'
 import ServicoDetail from './pages/servicos/ServicoDetail'
 import UsuariosList from './pages/usuarios/UsuariosList'
 import UsuarioForm from './pages/usuarios/UsuarioForm'
+import AgendamentosList from './pages/agendamentos/AgendamentosList'
+import AgendamentoForm from './pages/agendamentos/AgendamentoForm'
 
 export default function App() {
   return (
@@ -20,6 +22,9 @@ export default function App() {
 
         <Route path="/usuarios" element={<UsuariosList />} />
         <Route path="/usuarios/novo" element={<UsuarioForm />} />
+
+        <Route path="/agendamentos" element={<AgendamentosList />} />
+        <Route path="/agendamentos/novo" element={<AgendamentoForm />} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
