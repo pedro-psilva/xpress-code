@@ -43,6 +43,36 @@ Com a API no ar, acesse a documentação interativa em:
 
 Para validar a infraestrutura: `GET /health` e `GET /health/db`.
 
+## Endpoints
+
+Prefixo base: `/api/v1`.
+
+### Serviços
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| GET    | `/servicos`        | Lista os serviços |
+| GET    | `/servicos/{id}`   | Busca por ID |
+| POST   | `/servicos`        | Cria um serviço |
+| PUT    | `/servicos/{id}`   | Atualização integral |
+| DELETE | `/servicos/{id}`   | Remoção lógica (`ativo=false`) |
+
+### Usuários
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| GET    | `/usuarios`        | Lista os usuários |
+| GET    | `/usuarios/{id}`   | Busca por ID |
+| POST   | `/usuarios`        | Cria um usuário |
+| PUT    | `/usuarios/{id}`   | Atualiza um usuário |
+| DELETE | `/usuarios/{id}`   | Remove um usuário |
+
+### Agendamentos
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| GET    | `/agendamentos`        | Lista (filtros: `cliente_id`, `profissional_id`, `data`) |
+| GET    | `/agendamentos/{id}`   | Busca por ID |
+| POST   | `/agendamentos`        | Cria (valida cliente/profissional/serviço; calcula término) |
+| DELETE | `/agendamentos/{id}`   | Cancela (status → `cancelado`) |
+
 ## Variáveis de ambiente
 
 Veja [.env.example](./.env.example). Principais:
