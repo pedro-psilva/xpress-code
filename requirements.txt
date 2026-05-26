@@ -5,6 +5,7 @@ motor>=3.5
 pydantic>=2.7
 pydantic-settings>=2.4
 python-dotenv>=1.0
+email-validator>=2.1
 
 # Auth / segurança (M2 — Bônus A/B)
 passlib[bcrypt]>=1.7
