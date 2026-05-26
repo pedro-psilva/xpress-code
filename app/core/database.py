@@ -1,0 +1,32 @@
+"""Conexão com o MongoDB.
+
+Cliente assíncrono (Motor) gerenciado pelo ciclo de vida da aplicação.
+A instância do banco é exposta via `get_database`, que será injetada nas
+rotas/repositórios pelo mecanismo de dependências do FastAPI (Depends) — DIP.
+"""
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
+
+from app.core.config import settings
+
+
+class _Database:
+    client: AsyncIOMotorClient | None = None
+
+
+_db = _Database()
+
+
+async def connect_to_mongo() -> None:
+    _db.client = AsyncIOMotorClient(settings.mongo_uri)
+
+
+async def close_mongo_connection() -> None:
+    if _db.client is not None:
+        _db.client.close()
+        _db.client = None
+
+
+def get_database() -> AsyncIOMotorDatabase:
+    if _db.client is None:
+        raise RuntimeError("Conexão com o MongoDB não inicializada.")
+    return _db.client[settings.mongo_db_name]
