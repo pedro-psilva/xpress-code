@@ -24,15 +24,12 @@ export default function UsuariosList() {
   const [erro, setErro] = useState('')
   const { isAdmin } = useAuth()
 
-  function carregar() {
-    setLoading(true)
+  useEffect(() => {
     listarUsuarios()
       .then(setUsuarios)
       .catch((e) => setErro(getErrorMessage(e)))
       .finally(() => setLoading(false))
-  }
-
-  useEffect(carregar, [])
+  }, [])
 
   async function handleRemover(id) {
     if (!confirm('Remover este usuário?')) return
