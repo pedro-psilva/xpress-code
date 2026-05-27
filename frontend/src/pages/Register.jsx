@@ -35,9 +35,11 @@ export default function Register() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
       <Card className="w-full max-w-sm p-8">
-        <h1 className="text-xl font-bold text-indigo-600 text-center mb-1">
-          ✂ Xpress Code
-        </h1>
+        <img
+          src="/brand/logo-escuro.png"
+          alt="Xpress Code"
+          className="mx-auto h-28 w-auto mb-2"
+        />
         <p className="text-center text-sm text-slate-500 mb-6">Criar conta de cliente</p>
         <ErrorBanner message={erro} />
         <form onSubmit={handleSubmit} className="grid gap-4">

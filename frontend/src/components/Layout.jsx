@@ -21,7 +21,14 @@ export default function Layout() {
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <NavLink to="/" className="flex items-center gap-2">
-            <span className="text-lg font-bold text-indigo-600">✂ Xpress Code</span>
+            <img
+              src="/brand/monograma-x-escuro.png"
+              alt=""
+              className="h-8 w-8 object-contain"
+            />
+            <span className="text-lg font-bold" style={{ color: '#2B2622' }}>
+              Xpress Code
+            </span>
           </NavLink>
           <nav className="flex items-center gap-1">
             {links.map((l) => (
