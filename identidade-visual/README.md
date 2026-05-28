@@ -69,6 +69,11 @@ As variações usadas pela SPA ficam em [`frontend/public/brand/`](../frontend/p
 | `monograma-x-claro.png` | escuro | monograma branco |
 | `monograma-x-escuro.png` | claro | monograma recolorido |
 
+O **favicon** (`frontend/public/favicon.ico`, `favicon.png`, `apple-touch-icon.png`) usa o
+monograma "X" branco sobre círculo escuro. A paleta da marca está aplicada na SPA via tokens
+`@theme` (`--color-brand-*`) em [`frontend/src/index.css`](../frontend/src/index.css): botões
+primários em ouro, links e estados ativos em bronze.
+
 ## Diretrizes rápidas
 
 - Preserve uma margem de respiro ao redor do logo (não encoste em texto/bordas).

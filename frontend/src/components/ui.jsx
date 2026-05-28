@@ -13,7 +13,7 @@ export function PageHeader({ title, subtitle, action }) {
 }
 
 const variants = {
-  primary: 'bg-indigo-600 text-white hover:bg-indigo-700',
+  primary: 'bg-brand-400 text-stone-900 hover:bg-brand-500',
   secondary: 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50',
   danger: 'bg-red-50 text-red-700 border border-red-200 hover:bg-red-100',
 }
@@ -59,7 +59,7 @@ export function StatCard({ label, value, hint }) {
 export function Loading({ label = 'Carregando…' }) {
   return (
     <div className="flex items-center gap-3 text-slate-500 py-10 justify-center">
-      <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-indigo-600" />
+      <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-brand-500" />
       {label}
     </div>
   )
@@ -93,4 +93,4 @@ export function Field({ label, children, hint }) {
 }
 
 export const inputClass =
-  'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100'
+  'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100'

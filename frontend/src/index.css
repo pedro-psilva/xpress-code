@@ -1,5 +1,16 @@
 @import "tailwindcss";
 
+/* Paleta da marca Xpress Code (ver identidade-visual/README.md) */
+@theme {
+  --color-brand-50: #fbf4e6;
+  --color-brand-100: #f7e7c6;
+  --color-brand-200: #f0d29a;
+  --color-brand-400: #e8a93c; /* ouro da marca */
+  --color-brand-500: #d4922a;
+  --color-brand-600: #b97e21;
+  --color-brand-700: #7a5636; /* bronze escuro p/ texto */
+}
+
 html,
 body,
 #root {

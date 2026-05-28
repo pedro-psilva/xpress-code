@@ -65,7 +65,7 @@ export default function ServicoDetail() {
       </Card>
       <button
         onClick={() => navigate('/servicos')}
-        className="mt-4 text-sm text-indigo-600 hover:underline"
+        className="mt-4 text-sm text-brand-700 hover:underline"
       >
         ← Voltar para a lista
       </button>
