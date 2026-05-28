@@ -15,6 +15,16 @@ export function ehHoje(iso) {
   );
 }
 
+export function ehMesAtual(iso) {
+  const data = new Date(iso);
+  const hoje = new Date();
+  return data.getFullYear() === hoje.getFullYear() && data.getMonth() === hoje.getMonth();
+}
+
+export function ehPassado(iso) {
+  return new Date(iso) < new Date();
+}
+
 export function formatarHora(iso) {
   const data = new Date(iso);
   return `${pad(data.getHours())}:${pad(data.getMinutes())}`;
