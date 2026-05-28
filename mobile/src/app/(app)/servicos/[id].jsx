@@ -91,7 +91,7 @@ export default function ServicoDetailScreen() {
         <Info label="Status" value={servico.ativo ? 'Ativo' : 'Inativo'} />
       </Card>
       <Link href="/servicos" asChild>
-        <Text className="mt-4 text-sm text-indigo-600">← Voltar para a lista</Text>
+        <Text className="mt-4 text-sm text-brand-700">← Voltar para a lista</Text>
       </Link>
     </Screen>
   );

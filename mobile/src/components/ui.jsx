@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 
 const VARIANTES = {
-  primary: { box: 'bg-indigo-600', label: 'text-white', spinner: '#ffffff' },
+  primary: { box: 'bg-brand-400', label: 'text-stone-900', spinner: '#1c1917' },
   secondary: {
     box: 'bg-white border border-slate-300',
     label: 'text-slate-700',
@@ -30,7 +30,7 @@ const BADGE_TONS = {
   green: { box: 'bg-green-50', label: 'text-green-700' },
   blue: { box: 'bg-blue-50', label: 'text-blue-700' },
   purple: { box: 'bg-purple-50', label: 'text-purple-700' },
-  indigo: { box: 'bg-indigo-50', label: 'text-indigo-700' },
+  brand: { box: 'bg-brand-50', label: 'text-brand-700' },
   slate: { box: 'bg-slate-100', label: 'text-slate-600' },
 };
 
@@ -119,7 +119,7 @@ export function Badge({ label, tone = 'slate' }) {
 export function Loading({ label = 'Carregando…' }) {
   return (
     <View className="flex-row items-center justify-center gap-3 py-10">
-      <ActivityIndicator size="small" color="#4f46e5" />
+      <ActivityIndicator size="small" color="#d4922a" />
       <Text className="text-slate-500">{label}</Text>
     </View>
   );
@@ -156,7 +156,7 @@ export function Input(props) {
   return (
     <TextInput
       placeholderTextColor="#94a3b8"
-      className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 focus:border-indigo-500"
+      className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 focus:border-brand-400"
       {...props}
     />
   );

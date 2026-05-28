@@ -1,6 +1,6 @@
 import { Link, Redirect, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Text, View } from 'react-native';
+import { Image, Text, View } from 'react-native';
 
 import { login as loginApi } from '@/api/auth';
 import { getErrorMessage } from '@/api/client';
@@ -35,9 +35,11 @@ export default function LoginScreen() {
   return (
     <View className="flex-1 items-center justify-center bg-slate-50 px-4">
       <Card className="w-full max-w-sm p-8">
-        <Text className="mb-1 text-center text-xl font-bold text-indigo-600">
-          ✂ Xpress Code
-        </Text>
+        <Image
+          source={require('@/assets/brand/logo-escuro.png')}
+          style={{ width: 240, height: 112, alignSelf: 'center', marginBottom: 8 }}
+          resizeMode="contain"
+        />
         <Text className="mb-6 text-center text-sm text-slate-500">Acesse sua conta</Text>
         <ErrorBanner message={erro} />
         <View className="gap-4">
@@ -62,7 +64,7 @@ export default function LoginScreen() {
         <View className="mt-4 flex-row justify-center">
           <Text className="text-sm text-slate-500">Não tem conta? </Text>
           <Link href="/register" asChild>
-            <Text className="text-sm font-medium text-indigo-600">Cadastre-se</Text>
+            <Text className="text-sm font-medium text-brand-700">Cadastre-se</Text>
           </Link>
         </View>
       </Card>
