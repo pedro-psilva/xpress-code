@@ -86,7 +86,7 @@ export default function ServicoForm({ id }) {
           <Field label="Nome">
             <Input value={form.nome} onChangeText={(v) => update('nome', v)} />
           </Field>
-          <View className="flex-row gap-4">
+          <View className="flex-col gap-4 sm:flex-row">
             <View className="flex-1">
               <Field label="Preço (R$)">
                 <Input

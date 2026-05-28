@@ -69,7 +69,7 @@ export default function NovoUsuarioScreen() {
               keyboardType="email-address"
             />
           </Field>
-          <View className="flex-row gap-4">
+          <View className="flex-col gap-4 sm:flex-row">
             <View className="flex-1">
               <Field label="Senha" hint="Mínimo 6 caracteres">
                 <Input

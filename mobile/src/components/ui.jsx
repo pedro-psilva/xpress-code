@@ -51,7 +51,7 @@ export function Screen({ children }) {
 
 export function PageHeader({ title, subtitle, action }) {
   return (
-    <View className="mb-6 flex-row items-end justify-between gap-4">
+    <View className="mb-6 flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <View className="flex-1">
         <Text className="text-2xl font-semibold text-slate-800 dark:text-stone-100">
           {title}
@@ -72,10 +72,10 @@ export function Button({ title, onPress, variant = 'primary', disabled = false, 
     <Pressable
       onPress={onPress}
       disabled={bloqueado}
-      className={`flex-row items-center justify-center gap-2 rounded-lg px-4 py-2.5 ${estilo.box} ${bloqueado ? 'opacity-50' : ''}`}
+      className={`flex-row items-center justify-center gap-2 rounded-lg px-5 py-3 sm:px-4 sm:py-2.5 ${estilo.box} ${bloqueado ? 'opacity-50' : ''}`}
     >
       {loading ? <ActivityIndicator size="small" color={estilo.spinner} /> : null}
-      <Text className={`text-sm font-medium ${estilo.label}`}>{title}</Text>
+      <Text className={`text-base font-medium sm:text-sm ${estilo.label}`}>{title}</Text>
     </Pressable>
   );
 }
@@ -85,9 +85,9 @@ export function LinkButton({ href, title, variant = 'primary' }) {
   return (
     <Link href={href} asChild>
       <Pressable
-        className={`flex-row items-center justify-center gap-2 rounded-lg px-4 py-2.5 ${estilo.box}`}
+        className={`flex-row items-center justify-center gap-2 rounded-lg px-5 py-3 sm:px-4 sm:py-2.5 ${estilo.box}`}
       >
-        <Text className={`text-sm font-medium ${estilo.label}`}>{title}</Text>
+        <Text className={`text-base font-medium sm:text-sm ${estilo.label}`}>{title}</Text>
       </Pressable>
     </Link>
   );
@@ -172,7 +172,7 @@ export function Input(props) {
   return (
     <TextInput
       placeholderTextColor={tema === 'dark' ? '#78716c' : '#94a3b8'}
-      className="w-full rounded-lg border border-slate-300 dark:border-stone-700 bg-white dark:bg-stone-900 px-3 py-2.5 text-sm text-slate-800 dark:text-stone-100 focus:border-brand-400"
+      className="w-full rounded-lg border border-slate-300 dark:border-stone-700 bg-white dark:bg-stone-900 px-4 py-3 sm:px-3 sm:py-2.5 text-base sm:text-sm text-slate-800 dark:text-stone-100 focus:border-brand-400"
       {...props}
     />
   );
