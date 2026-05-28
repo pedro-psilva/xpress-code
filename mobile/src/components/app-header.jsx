@@ -11,6 +11,7 @@ const LINKS = [
   { href: '/servicos', label: 'Serviços' },
   { href: '/usuarios', label: 'Usuários' },
   { href: '/agendamentos', label: 'Agendamentos' },
+  { href: '/clube', label: 'Clube' },
 ];
 
 const SECUNDARIOS = [{ href: '/configuracoes', label: 'Configurações' }];
