@@ -7,3 +7,7 @@ export const buscarAgendamento = (id) =>
 export const criarAgendamento = (data) =>
   api.post('/agendamentos', data).then((r) => r.data);
 export const cancelarAgendamento = (id) => api.delete(`/agendamentos/${id}`);
+export const concluirAgendamento = (id) =>
+  api.post(`/agendamentos/${id}/concluir`).then((r) => r.data);
+export const naoCompareceuAgendamento = (id) =>
+  api.post(`/agendamentos/${id}/no-show`).then((r) => r.data);

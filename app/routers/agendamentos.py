@@ -64,3 +64,27 @@ async def cancelar(
     service: AgendamentoService = Depends(get_agendamento_service),
 ):
     await service.cancelar(agendamento_id)
+
+
+@router.post(
+    "/{agendamento_id}/concluir",
+    response_model=AgendamentoOut,
+    summary="Marca o atendimento como concluído (entra no balanço)",
+)
+async def concluir(
+    agendamento_id: str,
+    service: AgendamentoService = Depends(get_agendamento_service),
+):
+    return await service.concluir(agendamento_id)
+
+
+@router.post(
+    "/{agendamento_id}/no-show",
+    response_model=AgendamentoOut,
+    summary="Registra que o cliente não compareceu",
+)
+async def no_show(
+    agendamento_id: str,
+    service: AgendamentoService = Depends(get_agendamento_service),
+):
+    return await service.marcar_no_show(agendamento_id)

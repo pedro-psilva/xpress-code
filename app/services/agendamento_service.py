@@ -92,8 +92,40 @@ class AgendamentoService:
 
     async def cancelar(self, agendamento_id: str) -> None:
         """Cancelamento lógico: status -> cancelado (preserva o histórico)."""
-        atualizado = await self._repo.update(
-            agendamento_id, {"status": StatusAgendamento.cancelado.value}
+        await self._mudar_status(
+            agendamento_id,
+            StatusAgendamento.cancelado,
+            {StatusAgendamento.agendado},
         )
-        if atualizado is None:
+
+    async def concluir(self, agendamento_id: str) -> dict[str, Any]:
+        """Marca o atendimento como concluído (entra no balanço financeiro)."""
+        return await self._mudar_status(
+            agendamento_id,
+            StatusAgendamento.concluido,
+            {StatusAgendamento.agendado},
+        )
+
+    async def marcar_no_show(self, agendamento_id: str) -> dict[str, Any]:
+        """Cliente não compareceu — registra para histórico/relatórios."""
+        return await self._mudar_status(
+            agendamento_id,
+            StatusAgendamento.no_show,
+            {StatusAgendamento.agendado},
+        )
+
+    async def _mudar_status(
+        self,
+        agendamento_id: str,
+        novo: StatusAgendamento,
+        validos_atuais: set[StatusAgendamento],
+    ) -> dict[str, Any]:
+        agendamento = await self._repo.get_by_id(agendamento_id)
+        if agendamento is None:
             raise NotFoundError("Agendamento não encontrado.")
+        atual = agendamento.get("status")
+        if atual not in {s.value for s in validos_atuais}:
+            raise ValidationError(
+                f"Transição de status inválida: '{atual}' → '{novo.value}'."
+            )
+        return await self._repo.update(agendamento_id, {"status": novo.value})

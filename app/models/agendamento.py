@@ -13,6 +13,7 @@ class StatusAgendamento(str, Enum):
     agendado = "agendado"
     concluido = "concluido"
     cancelado = "cancelado"
+    no_show = "no_show"
 
 
 class AgendamentoCreate(BaseModel):

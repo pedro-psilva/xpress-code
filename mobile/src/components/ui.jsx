@@ -34,6 +34,7 @@ const BADGE_TONS = {
   green: { bg: 'bg-green-50 dark:bg-green-950', text: 'text-green-700 dark:text-green-300' },
   blue: { bg: 'bg-blue-50 dark:bg-blue-950', text: 'text-blue-700 dark:text-blue-300' },
   purple: { bg: 'bg-purple-50 dark:bg-purple-950', text: 'text-purple-700 dark:text-purple-300' },
+  red: { bg: 'bg-red-50 dark:bg-red-950', text: 'text-red-700 dark:text-red-300' },
   brand: { bg: 'bg-brand-50 dark:bg-stone-800', text: 'text-brand-700 dark:text-brand-200' },
   slate: { bg: 'bg-slate-100 dark:bg-stone-800', text: 'text-slate-600 dark:text-stone-300' },
 };
