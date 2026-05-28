@@ -6,10 +6,10 @@ import { listarServicos } from '@/api/servicos';
 import { listarUsuarios } from '@/api/usuarios';
 import {
   Badge,
-  Button,
   Cell,
   EmptyState,
   ErrorBanner,
+  IconButton,
   LinkButton,
   Loading,
   PageHeader,
@@ -74,10 +74,15 @@ export default function AgendamentosListScreen() {
     {
       key: 'acoes',
       header: '',
-      flex: 0.8,
+      flex: 0.5,
       render: (a) =>
         a.status === 'agendado' ? (
-          <Button title="Cancelar" variant="danger" onPress={() => handleCancelar(a.id)} />
+          <IconButton
+            icon="close-outline"
+            variant="danger"
+            label="Cancelar agendamento"
+            onPress={() => handleCancelar(a.id)}
+          />
         ) : null,
     },
   ];

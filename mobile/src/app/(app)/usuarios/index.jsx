@@ -5,10 +5,10 @@ import { listarUsuarios, removerUsuario } from '@/api/usuarios';
 import { useAuth } from '@/auth/auth-context';
 import {
   Badge,
-  Button,
   Cell,
   EmptyState,
   ErrorBanner,
+  IconButton,
   LinkButton,
   Loading,
   PageHeader,
@@ -56,9 +56,14 @@ export default function UsuariosListScreen() {
           {
             key: 'acoes',
             header: '',
-            flex: 0.8,
+            flex: 0.5,
             render: (u) => (
-              <Button title="Remover" variant="danger" onPress={() => handleRemover(u.id)} />
+              <IconButton
+                icon="trash-outline"
+                variant="danger"
+                label="Remover usuário"
+                onPress={() => handleRemover(u.id)}
+              />
             ),
           },
         ]

@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import { Picker } from '@react-native-picker/picker';
 import {
@@ -76,6 +77,40 @@ export function Button({ title, onPress, variant = 'primary', disabled = false, 
     >
       {loading ? <ActivityIndicator size="small" color={estilo.spinner} /> : null}
       <Text className={`text-base font-medium sm:text-sm ${estilo.label}`}>{title}</Text>
+    </Pressable>
+  );
+}
+
+const ICON_BUTTON_VARIANTES = {
+  default: {
+    box: 'bg-white dark:bg-stone-900 border border-slate-300 dark:border-stone-700 active:bg-slate-50 dark:active:bg-stone-800',
+    cor: '#475569',
+    corDark: '#a8a29e',
+  },
+  danger: {
+    box: 'bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-900 active:bg-red-100',
+    cor: '#b91c1c',
+    corDark: '#fca5a5',
+  },
+  success: {
+    box: 'bg-green-50 dark:bg-green-950/60 border border-green-200 dark:border-green-900 active:bg-green-100',
+    cor: '#15803d',
+    corDark: '#86efac',
+  },
+};
+
+export function IconButton({ icon, onPress, variant = 'default', label, disabled = false }) {
+  const { tema } = useTheme();
+  const estilo = ICON_BUTTON_VARIANTES[variant] ?? ICON_BUTTON_VARIANTES.default;
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={disabled}
+      accessibilityLabel={label}
+      accessibilityRole="button"
+      className={`h-10 w-10 items-center justify-center rounded-lg ${estilo.box} ${disabled ? 'opacity-50' : ''}`}
+    >
+      <Ionicons name={icon} size={18} color={tema === 'dark' ? estilo.corDark : estilo.cor} />
     </Pressable>
   );
 }
