@@ -5,29 +5,38 @@ import { ActivityIndicator, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { AuthProvider, useAuth } from '@/auth/auth-context';
+import { ThemeProvider, useTheme } from '@/theme/theme-context';
 
-// Enquanto a sessão é lida do armazenamento, mostramos um spinner. Só então
-// renderizamos o navegador, evitando redirecionar para o login antes da hora.
 function RootNavigator() {
-  const { loading } = useAuth();
+  const { loading: authLoading } = useAuth();
+  const { pronto: temaPronto, tema } = useTheme();
+  const ehDark = tema === 'dark';
 
-  if (loading) {
+  if (authLoading || !temaPronto) {
     return (
-      <View className="flex-1 items-center justify-center bg-slate-50">
+      <View
+        className={`flex-1 items-center justify-center bg-slate-50 dark:bg-stone-950 ${ehDark ? 'dark' : ''}`}
+      >
         <ActivityIndicator size="large" color="#d4922a" />
       </View>
     );
   }
 
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <View className={`flex-1 ${ehDark ? 'dark' : ''}`}>
+      <Stack screenOptions={{ headerShown: false }} />
+    </View>
+  );
 }
 
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <AuthProvider>
-        <RootNavigator />
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <RootNavigator />
+        </AuthProvider>
+      </ThemeProvider>
     </SafeAreaProvider>
   );
 }

@@ -113,7 +113,9 @@ export default function AdminDashboard() {
         )}
       </View>
 
-      <Text className="mb-3 text-lg font-semibold text-slate-800">Agenda de hoje</Text>
+      <Text className="mb-3 text-lg font-semibold text-slate-800 dark:text-stone-100">
+        Agenda de hoje
+      </Text>
       {agendaHoje.length === 0 ? (
         <EmptyState message="Nenhum atendimento agendado para hoje." />
       ) : (

@@ -15,7 +15,7 @@ export default function AppLayout() {
   }
 
   return (
-    <View className="flex-1 bg-slate-50">
+    <View className="flex-1 bg-slate-50 dark:bg-stone-950">
       <AppHeader />
       <Stack screenOptions={{ headerShown: false }} />
     </View>

@@ -5,6 +5,10 @@
 @import 'tailwindcss/utilities.css';
 @import 'nativewind/theme';
 
+/* Tema escuro controlado por classe (em vez de prefers-color-scheme).
+   Aplicamos 'dark' na View raiz com base na preferencia do usuario. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Paleta da marca Xpress Code (ver identidade-visual/README.md). */
 @theme {
   --color-brand-50: #fbf4e6;

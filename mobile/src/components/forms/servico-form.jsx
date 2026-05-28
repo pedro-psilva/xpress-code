@@ -108,7 +108,7 @@ export default function ServicoForm({ id }) {
           </View>
           <View className="flex-row items-center gap-3">
             <Switch value={form.ativo} onValueChange={(v) => update('ativo', v)} />
-            <Text className="text-sm text-slate-700">Serviço ativo</Text>
+            <Text className="text-sm text-slate-700 dark:text-stone-200">Serviço ativo</Text>
           </View>
           <View className="flex-row gap-2 pt-2">
             <Button

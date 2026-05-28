@@ -20,8 +20,12 @@ import { formatarPreco } from '@/lib/format';
 function Info({ label, value }) {
   return (
     <View className="flex-1" style={{ minWidth: 120 }}>
-      <Text className="text-xs uppercase tracking-wide text-slate-400">{label}</Text>
-      <Text className="mt-1 text-lg font-medium text-slate-800">{value}</Text>
+      <Text className="text-xs uppercase tracking-wide text-slate-400 dark:text-stone-500">
+        {label}
+      </Text>
+      <Text className="mt-1 text-lg font-medium text-slate-800 dark:text-stone-100">
+        {value}
+      </Text>
     </View>
   );
 }

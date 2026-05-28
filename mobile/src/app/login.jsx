@@ -6,10 +6,12 @@ import { login as loginApi } from '@/api/auth';
 import { getErrorMessage } from '@/api/client';
 import { useAuth } from '@/auth/auth-context';
 import { Button, Card, ErrorBanner, Field, Input } from '@/components/ui';
+import { useBrandLogo } from '@/theme/theme-context';
 
 export default function LoginScreen() {
   const router = useRouter();
   const { login, isAuthenticated } = useAuth();
+  const logo = useBrandLogo('logo');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [erro, setErro] = useState('');
@@ -33,14 +35,16 @@ export default function LoginScreen() {
   }
 
   return (
-    <View className="flex-1 items-center justify-center bg-slate-50 px-4">
+    <View className="flex-1 items-center justify-center bg-slate-50 dark:bg-stone-950 px-4">
       <Card className="w-full max-w-sm p-8">
         <Image
-          source={require('@/assets/brand/logo-escuro.png')}
+          source={logo}
           style={{ width: 240, height: 112, alignSelf: 'center', marginBottom: 8 }}
           resizeMode="contain"
         />
-        <Text className="mb-6 text-center text-sm text-slate-500">Acesse sua conta</Text>
+        <Text className="mb-6 text-center text-sm text-slate-500 dark:text-stone-400">
+          Acesse sua conta
+        </Text>
         <ErrorBanner message={erro} />
         <View className="gap-4">
           <Field label="E-mail">
@@ -62,7 +66,7 @@ export default function LoginScreen() {
           />
         </View>
         <View className="mt-4 flex-row justify-center">
-          <Text className="text-sm text-slate-500">Não tem conta? </Text>
+          <Text className="text-sm text-slate-500 dark:text-stone-400">Não tem conta? </Text>
           <Link href="/register" asChild>
             <Text className="text-sm font-medium text-brand-700">Cadastre-se</Text>
           </Link>

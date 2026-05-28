@@ -59,7 +59,7 @@ export default function ClienteDashboard() {
       />
       <ErrorBanner message={erro} />
 
-      <Text className="mb-3 text-lg font-semibold text-slate-800">
+      <Text className="mb-3 text-lg font-semibold text-slate-800 dark:text-stone-100">
         Meus próximos horários
       </Text>
       {proximos.length === 0 ? (
@@ -68,13 +68,13 @@ export default function ClienteDashboard() {
         <View className="mb-8 flex-row flex-wrap gap-3">
           {proximos.map((a) => (
             <Card key={a.id} className="flex-1 p-4" style={{ minWidth: 220 }}>
-              <Text className="text-sm font-semibold text-slate-800">
+              <Text className="text-sm font-semibold text-slate-800 dark:text-stone-100">
                 {servicoNomes[a.servico_id] || 'Serviço'}
               </Text>
-              <Text className="mt-1 text-sm text-slate-600">
+              <Text className="mt-1 text-sm text-slate-600 dark:text-stone-300">
                 {formatarDataHora(a.data_hora_inicio)}
               </Text>
-              <Text className="mt-1 text-xs text-slate-400">
+              <Text className="mt-1 text-xs text-slate-400 dark:text-stone-500">
                 com {nomes[a.profissional_id] || 'profissional'}
               </Text>
             </Card>
@@ -82,7 +82,7 @@ export default function ClienteDashboard() {
         </View>
       )}
 
-      <Text className="mb-3 text-lg font-semibold text-slate-800">
+      <Text className="mb-3 text-lg font-semibold text-slate-800 dark:text-stone-100">
         Serviços disponíveis
       </Text>
       {servicos.length === 0 ? (
@@ -91,9 +91,9 @@ export default function ClienteDashboard() {
         <View className="flex-row flex-wrap gap-3">
           {servicos.map((s) => (
             <Card key={s.id} className="flex-1 p-4" style={{ minWidth: 180 }}>
-              <Text className="text-sm font-semibold text-slate-800">{s.nome}</Text>
-              <Text className="mt-1 text-sm text-slate-600">{formatarPreco(s.preco)}</Text>
-              <Text className="mt-1 text-xs text-slate-400">{s.duracao_minutos} min</Text>
+              <Text className="text-sm font-semibold text-slate-800 dark:text-stone-100">{s.nome}</Text>
+              <Text className="mt-1 text-sm text-slate-600 dark:text-stone-300">{formatarPreco(s.preco)}</Text>
+              <Text className="mt-1 text-xs text-slate-400 dark:text-stone-500">{s.duracao_minutos} min</Text>
             </Card>
           ))}
         </View>
