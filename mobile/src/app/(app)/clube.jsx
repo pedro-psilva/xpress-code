@@ -2,8 +2,15 @@ import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
 import { Text, useWindowDimensions, View } from 'react-native';
 
+import {
+  atualizarStatusAssinatura,
+  gerarCobranca,
+  listarAssinaturas,
+  removerAssinatura,
+} from '@/api/assinaturas';
 import { getErrorMessage } from '@/api/client';
 import { listarPlanos } from '@/api/planos';
+import { listarUsuarios } from '@/api/usuarios';
 import { useAuth } from '@/auth/auth-context';
 import {
   Badge,
@@ -11,6 +18,7 @@ import {
   Cell,
   EmptyState,
   ErrorBanner,
+  IconButton,
   LinkButton,
   Loading,
   PageHeader,
@@ -18,40 +26,23 @@ import {
   StatCard,
   Table,
 } from '@/components/ui';
+import { confirmar } from '@/lib/confirm';
 import { formatarData, formatarPreco } from '@/lib/format';
 import { useTheme } from '@/theme/theme-context';
 
-const STATUS_TOM = { ativo: 'green', pendente: 'brand', inativo: 'slate' };
-const STATUS_LABEL = { ativo: 'ativo', pendente: 'pagamento pendente', inativo: 'inativo' };
-
-const ASSINATURAS_MOCK = [
-  { id: 'a01', cliente: 'Lucas Andrade',         plano: 'flex',      inclui_barba: false, status: 'ativo',    proxima_cobranca: '2026-06-08' },
-  { id: 'a02', cliente: 'Rafael Oliveira',       plano: 'essencial', inclui_barba: true,  status: 'ativo',    proxima_cobranca: '2026-06-12' },
-  { id: 'a03', cliente: 'Pedro Henrique Costa',  plano: 'uau',       inclui_barba: false, status: 'ativo',    proxima_cobranca: '2026-06-15' },
-  { id: 'a04', cliente: 'Matheus Rocha',         plano: 'flex',      inclui_barba: true,  status: 'pendente', proxima_cobranca: '2026-05-22' },
-  { id: 'a05', cliente: 'Bruno Carvalho',        plano: 'uau',       inclui_barba: true,  status: 'ativo',    proxima_cobranca: '2026-06-03' },
-  { id: 'a06', cliente: 'Felipe Souza',          plano: 'flex',      inclui_barba: false, status: 'ativo',    proxima_cobranca: '2026-06-20' },
-  { id: 'a07', cliente: 'Gabriel Lima',          plano: 'essencial', inclui_barba: false, status: 'pendente', proxima_cobranca: '2026-05-18' },
-  { id: 'a08', cliente: 'Diego Martins',         plano: 'uau',       inclui_barba: false, status: 'inativo',  proxima_cobranca: null },
-  { id: 'a09', cliente: 'Vinícius Pereira',      plano: 'flex',      inclui_barba: true,  status: 'ativo',    proxima_cobranca: '2026-06-25' },
-  { id: 'a10', cliente: 'Thiago Resende',        plano: 'uau',       inclui_barba: false, status: 'inativo',  proxima_cobranca: null },
-];
-
-const ORDEM_STATUS = { pendente: 0, ativo: 1, inativo: 2 };
-
-function indexarPorChave(planos) {
-  return Object.fromEntries(planos.map((p) => [p.nome.toLowerCase(), p]));
-}
+const STATUS_TOM = { ativa: 'green', pendente: 'brand', inativa: 'slate' };
+const STATUS_LABEL = { ativa: 'ativa', pendente: 'pagamento pendente', inativa: 'inativa' };
+const ORDEM_STATUS = { pendente: 0, ativa: 1, inativa: 2 };
 
 function valorMensal(assinatura, mapaPlanos) {
-  const p = mapaPlanos[assinatura.plano];
+  const p = mapaPlanos[assinatura.plano_id];
   if (!p) return 0;
   return assinatura.inclui_barba ? p.preco_corte_barba : p.preco_corte;
 }
 
 function nomePlano(assinatura, mapaPlanos) {
-  const p = mapaPlanos[assinatura.plano];
-  const base = p?.nome ?? assinatura.plano;
+  const p = mapaPlanos[assinatura.plano_id];
+  const base = p?.nome ?? '—';
   return assinatura.inclui_barba ? `${base} + Barba` : base;
 }
 
@@ -65,15 +56,37 @@ function InfoBanner({ tema, children }) {
   );
 }
 
+function SuccessBanner({ resultado, onFechar }) {
+  if (!resultado) return null;
+  return (
+    <Card className="mb-4 border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-950/60 p-4">
+      <View className="flex-row items-start justify-between gap-2">
+        <Text className="flex-1 text-sm font-semibold text-green-800 dark:text-green-200">
+          Cobrança gerada
+        </Text>
+        <IconButton icon="close-outline" label="Fechar" onPress={onFechar} />
+      </View>
+      <Text
+        selectable
+        className="mt-2 font-mono text-xs text-green-900 dark:text-green-100"
+      >
+        {resultado.link}
+      </Text>
+      <Text className="mt-2 text-xs text-green-700 dark:text-green-300">
+        Enviado: {resultado.enviado_email ? '✓ email' : '— email'}
+        {' · '}
+        {resultado.enviado_whatsapp ? '✓ WhatsApp' : '— WhatsApp'}
+      </Text>
+    </Card>
+  );
+}
+
 function PlanoResumo({ plano, estreito }) {
   return (
     <Card className="flex-1 p-4" style={estreito ? undefined : { minWidth: 220 }}>
-      <View className="flex-row items-center justify-between gap-2">
-        <Text className="text-base font-semibold text-slate-800 dark:text-stone-100">
-          {plano.nome}
-        </Text>
-        {plano.ativo === false ? <Badge label="inativo" tone="slate" /> : null}
-      </View>
+      <Text className="text-base font-semibold text-slate-800 dark:text-stone-100">
+        {plano.nome}
+      </Text>
       <Text className="mt-0.5 text-xs text-slate-500 dark:text-stone-400">
         {plano.frequencia}
       </Text>
@@ -87,11 +100,6 @@ function PlanoResumo({ plano, estreito }) {
         <Text className="text-xs font-normal text-slate-500 dark:text-stone-400">/mês</Text>
       </Text>
       <Text className="text-xs text-slate-500 dark:text-stone-400">corte + barba</Text>
-      <Text className="mt-3 text-xs text-slate-500 dark:text-stone-400">
-        {plano.desconto_extras > 0
-          ? `${plano.desconto_extras}% off em serviços extras`
-          : 'sem desconto extras'}
-      </Text>
     </Card>
   );
 }
@@ -102,17 +110,68 @@ export default function ClubeScreen() {
   const { width } = useWindowDimensions();
   const estreito = width < 640;
 
+  const [assinaturas, setAssinaturas] = useState([]);
   const [planos, setPlanos] = useState([]);
+  const [clientes, setClientes] = useState([]);
   const [loading, setLoading] = useState(isAdmin);
   const [erro, setErro] = useState('');
+  const [cobrando, setCobrando] = useState(null);
+  const [resultadoCobranca, setResultadoCobranca] = useState(null);
 
   useEffect(() => {
     if (!isAdmin) return;
-    listarPlanos()
-      .then(setPlanos)
+    Promise.all([listarAssinaturas(), listarPlanos(), listarUsuarios()])
+      .then(([asgs, pls, us]) => {
+        setAssinaturas(asgs);
+        setPlanos(pls);
+        setClientes(us);
+      })
       .catch((e) => setErro(getErrorMessage(e)))
       .finally(() => setLoading(false));
   }, [isAdmin]);
+
+  function refreshAssinaturas() {
+    return listarAssinaturas()
+      .then(setAssinaturas)
+      .catch((e) => setErro(getErrorMessage(e)));
+  }
+
+  async function handleCobrar(id) {
+    setErro('');
+    setResultadoCobranca(null);
+    setCobrando(id);
+    try {
+      const r = await gerarCobranca(id);
+      setResultadoCobranca(r);
+      await refreshAssinaturas();
+    } catch (e) {
+      setErro(getErrorMessage(e));
+    } finally {
+      setCobrando(null);
+    }
+  }
+
+  async function handleRemover(id) {
+    if (!(await confirmar('Remover esta assinatura?'))) return;
+    try {
+      await removerAssinatura(id);
+      setAssinaturas((atual) => atual.filter((a) => a.id !== id));
+    } catch (e) {
+      setErro(getErrorMessage(e));
+    }
+  }
+
+  async function handleToggleStatus(assinatura) {
+    const proximo = assinatura.status === 'ativa' ? 'inativa' : 'ativa';
+    try {
+      const atualizado = await atualizarStatusAssinatura(assinatura.id, proximo);
+      setAssinaturas((atual) =>
+        atual.map((a) => (a.id === assinatura.id ? atualizado : a)),
+      );
+    } catch (e) {
+      setErro(getErrorMessage(e));
+    }
+  }
 
   if (!isAdmin) {
     return (
@@ -138,24 +197,29 @@ export default function ClubeScreen() {
     );
   }
 
-  const mapaPlanos = indexarPorChave(planos);
+  const mapaPlanos = Object.fromEntries(planos.map((p) => [p.id, p]));
+  const mapaClientes = Object.fromEntries(clientes.map((c) => [c.id, c.nome]));
 
-  const ativos = ASSINATURAS_MOCK.filter((a) => a.status === 'ativo');
-  const pendentes = ASSINATURAS_MOCK.filter((a) => a.status === 'pendente');
-  const mrr = ativos.reduce((acc, a) => acc + valorMensal(a, mapaPlanos), 0);
+  const ativas = assinaturas.filter((a) => a.status === 'ativa');
+  const pendentes = assinaturas.filter((a) => a.status === 'pendente');
+  const mrr = ativas.reduce((acc, a) => acc + valorMensal(a, mapaPlanos), 0);
   const emAtraso = pendentes.reduce((acc, a) => acc + valorMensal(a, mapaPlanos), 0);
 
-  const assinaturasOrdenadas = [...ASSINATURAS_MOCK].sort(
-    (a, b) =>
-      ORDEM_STATUS[a.status] - ORDEM_STATUS[b.status] || a.cliente.localeCompare(b.cliente),
-  );
+  const assinaturasOrdenadas = [...assinaturas].sort((a, b) => {
+    const ordA = ORDEM_STATUS[a.status] ?? 99;
+    const ordB = ORDEM_STATUS[b.status] ?? 99;
+    if (ordA !== ordB) return ordA - ordB;
+    return (mapaClientes[a.cliente_id] || '').localeCompare(
+      mapaClientes[b.cliente_id] || '',
+    );
+  });
 
   const colunas = [
     {
       key: 'cliente',
       header: 'Cliente',
       flex: 1.4,
-      render: (a) => <Cell strong>{a.cliente}</Cell>,
+      render: (a) => <Cell strong>{mapaClientes[a.cliente_id] ?? '—'}</Cell>,
     },
     {
       key: 'plano',
@@ -167,7 +231,9 @@ export default function ClubeScreen() {
       key: 'status',
       header: 'Status',
       flex: 1.1,
-      render: (a) => <Badge label={STATUS_LABEL[a.status]} tone={STATUS_TOM[a.status]} />,
+      render: (a) => (
+        <Badge label={STATUS_LABEL[a.status] ?? a.status} tone={STATUS_TOM[a.status] ?? 'slate'} />
+      ),
     },
     {
       key: 'valor',
@@ -181,10 +247,48 @@ export default function ClubeScreen() {
       flex: 0.9,
       render: (a) =>
         a.proxima_cobranca ? (
-          <Cell muted={a.status === 'inativo'}>{formatarData(a.proxima_cobranca)}</Cell>
+          <Cell muted={a.status === 'inativa'}>{formatarData(a.proxima_cobranca)}</Cell>
         ) : (
           <Cell muted>—</Cell>
         ),
+    },
+    {
+      key: 'cobrar',
+      header: '',
+      flex: 0.5,
+      render: (a) => (
+        <IconButton
+          icon="cash-outline"
+          label="Gerar cobrança"
+          onPress={() => handleCobrar(a.id)}
+          disabled={cobrando === a.id || a.status === 'inativa'}
+        />
+      ),
+    },
+    {
+      key: 'toggle',
+      header: '',
+      flex: 0.5,
+      render: (a) => (
+        <IconButton
+          icon={a.status === 'inativa' ? 'play-outline' : 'pause-outline'}
+          label={a.status === 'inativa' ? 'Reativar' : 'Pausar'}
+          onPress={() => handleToggleStatus(a)}
+        />
+      ),
+    },
+    {
+      key: 'remover',
+      header: '',
+      flex: 0.5,
+      render: (a) => (
+        <IconButton
+          icon="trash-outline"
+          variant="danger"
+          label="Remover assinatura"
+          onPress={() => handleRemover(a.id)}
+        />
+      ),
     },
   ];
 
@@ -193,27 +297,28 @@ export default function ClubeScreen() {
       <PageHeader
         title="Clube Xpress"
         subtitle="Assinaturas mensais dos clientes da barbearia."
-        action={<Badge label="demonstração" tone="brand" />}
+        action={<LinkButton href="/assinaturas/nova" title="+ Nova" />}
       />
+
+      <ErrorBanner message={erro} />
+      <SuccessBanner resultado={resultadoCobranca} onFechar={() => setResultadoCobranca(null)} />
 
       <InfoBanner tema={tema}>
         <Text className="text-sm font-semibold text-slate-800 dark:text-stone-100">
-          Em breve: cobrança automática via InfinitePay
+          Cobrança via InfinitePay + envio por Brevo/WhatsApp
         </Text>
         <Text className="mt-1 text-sm text-slate-600 dark:text-stone-300">
-          A lista de assinantes ainda é fictícia. Os planos abaixo já vêm do banco —
-          edite em &quot;Gerenciar&quot;. Quando as credenciais da InfinitePay forem
-          configuradas, as assinaturas passam a ser reais.
+          Clique no botão de cobrar (💰) ao lado da assinatura para gerar um link
+          de pagamento (Pix ou cartão) e enviar automaticamente pelo email
+          (Brevo) e WhatsApp do cliente.
         </Text>
       </InfoBanner>
-
-      <ErrorBanner message={erro} />
 
       <View className="mb-8 flex-row flex-wrap gap-4">
         <StatCard
           label="Assinantes ativos"
-          value={ativos.length}
-          hint={`em ${ASSINATURAS_MOCK.length} cadastrados`}
+          value={ativas.length}
+          hint={`em ${assinaturas.length} cadastrados`}
         />
         <StatCard
           label="Pagamento pendente"
@@ -230,7 +335,7 @@ export default function ClubeScreen() {
         <LinkButton href="/planos" title="Gerenciar" variant="secondary" />
       </View>
       {planos.length === 0 ? (
-        <EmptyState message="Nenhum plano cadastrado. Use &quot;Gerenciar&quot; para criar." />
+        <EmptyState message='Nenhum plano cadastrado. Use "Gerenciar" para criar.' />
       ) : (
         <View className="mb-8 flex-row flex-wrap gap-3">
           {planos
@@ -245,7 +350,7 @@ export default function ClubeScreen() {
         Assinantes
       </Text>
       {assinaturasOrdenadas.length === 0 ? (
-        <EmptyState message="Nenhuma assinatura cadastrada ainda." />
+        <EmptyState message='Nenhuma assinatura ainda. Clique em "+ Nova" para cadastrar.' />
       ) : (
         <Table
           columns={colunas}
