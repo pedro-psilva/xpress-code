@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Text, View } from 'react-native';
+import { Text, useWindowDimensions, View } from 'react-native';
 
 import { useAuth } from '@/auth/auth-context';
 import {
@@ -16,9 +16,27 @@ import { formatarData, formatarPreco } from '@/lib/format';
 import { useTheme } from '@/theme/theme-context';
 
 const PLANOS = {
-  essencial: { nome: 'Essencial', preco: 79 },
-  flex: { nome: 'Flex', preco: 129 },
-  clube_one: { nome: 'Clube One', preco: 199 },
+  uau: {
+    nome: 'UAU',
+    preco: 89,
+    frequencia: '2x no mês',
+    desconto_extras: 0,
+    descricao: 'Plano básico — manter o visual alinhado.',
+  },
+  flex: {
+    nome: 'Flex',
+    preco: 149,
+    frequencia: '1x por semana (4x no mês)',
+    desconto_extras: 5,
+    descricao: 'Intermediário — visual sempre na régua.',
+  },
+  essencial: {
+    nome: 'Essencial',
+    preco: 229,
+    frequencia: 'ilimitado (seg–qui)',
+    desconto_extras: 10,
+    descricao: 'Top — prioridade máxima e atendimentos sem limite.',
+  },
 };
 
 const STATUS_TOM = { ativo: 'green', pendente: 'brand', inativo: 'slate' };
@@ -26,15 +44,15 @@ const STATUS_LABEL = { ativo: 'ativo', pendente: 'pagamento pendente', inativo: 
 
 const ASSINATURAS_MOCK = [
   { id: 'a01', cliente: 'Lucas Andrade', plano: 'flex', status: 'ativo', proxima_cobranca: '2026-06-08' },
-  { id: 'a02', cliente: 'Rafael Oliveira', plano: 'clube_one', status: 'ativo', proxima_cobranca: '2026-06-12' },
-  { id: 'a03', cliente: 'Pedro Henrique Costa', plano: 'essencial', status: 'ativo', proxima_cobranca: '2026-06-15' },
+  { id: 'a02', cliente: 'Rafael Oliveira', plano: 'essencial', status: 'ativo', proxima_cobranca: '2026-06-12' },
+  { id: 'a03', cliente: 'Pedro Henrique Costa', plano: 'uau', status: 'ativo', proxima_cobranca: '2026-06-15' },
   { id: 'a04', cliente: 'Matheus Rocha', plano: 'flex', status: 'pendente', proxima_cobranca: '2026-05-22' },
-  { id: 'a05', cliente: 'Bruno Carvalho', plano: 'essencial', status: 'ativo', proxima_cobranca: '2026-06-03' },
+  { id: 'a05', cliente: 'Bruno Carvalho', plano: 'uau', status: 'ativo', proxima_cobranca: '2026-06-03' },
   { id: 'a06', cliente: 'Felipe Souza', plano: 'flex', status: 'ativo', proxima_cobranca: '2026-06-20' },
-  { id: 'a07', cliente: 'Gabriel Lima', plano: 'clube_one', status: 'pendente', proxima_cobranca: '2026-05-18' },
-  { id: 'a08', cliente: 'Diego Martins', plano: 'essencial', status: 'inativo', proxima_cobranca: null },
+  { id: 'a07', cliente: 'Gabriel Lima', plano: 'essencial', status: 'pendente', proxima_cobranca: '2026-05-18' },
+  { id: 'a08', cliente: 'Diego Martins', plano: 'uau', status: 'inativo', proxima_cobranca: null },
   { id: 'a09', cliente: 'Vinícius Pereira', plano: 'flex', status: 'ativo', proxima_cobranca: '2026-06-25' },
-  { id: 'a10', cliente: 'Thiago Resende', plano: 'essencial', status: 'inativo', proxima_cobranca: null },
+  { id: 'a10', cliente: 'Thiago Resende', plano: 'uau', status: 'inativo', proxima_cobranca: null },
 ];
 
 const ORDEM_STATUS = { pendente: 0, ativo: 1, inativo: 2 };
@@ -56,9 +74,33 @@ function InfoBanner({ tema, children }) {
   );
 }
 
+function PlanoResumo({ plano, estreito }) {
+  return (
+    <Card className="flex-1 p-4" style={estreito ? undefined : { minWidth: 220 }}>
+      <Text className="text-base font-semibold text-slate-800 dark:text-stone-100">
+        {plano.nome}
+      </Text>
+      <Text className="mt-0.5 text-xs text-slate-500 dark:text-stone-400">
+        {plano.frequencia} · seg–qui
+      </Text>
+      <Text className="mt-3 text-xl font-bold text-slate-800 dark:text-stone-100">
+        {formatarPreco(plano.preco)}
+        <Text className="text-sm font-normal text-slate-500 dark:text-stone-400">/mês</Text>
+      </Text>
+      <Text className="mt-1 text-xs text-slate-500 dark:text-stone-400">
+        {plano.desconto_extras > 0
+          ? `${plano.desconto_extras}% off em serviços extras`
+          : 'sem desconto extras'}
+      </Text>
+    </Card>
+  );
+}
+
 export default function ClubeScreen() {
   const { isAdmin } = useAuth();
   const { tema } = useTheme();
+  const { width } = useWindowDimensions();
+  const estreito = width < 640;
 
   if (!isAdmin) {
     return (
@@ -132,8 +174,8 @@ export default function ClubeScreen() {
         </Text>
         <Text className="mt-1 text-sm text-slate-600 dark:text-stone-300">
           Os dados desta tela são fictícios. Quando as credenciais da InfinitePay forem
-          configuradas (variáveis INFINITEPAY_* no .env do backend), a lista passa a refletir
-          as assinaturas reais e o status do pagamento.
+          configuradas (variáveis INFINITEPAY_* no .env do backend), a lista passa a
+          refletir as assinaturas reais e o status do pagamento.
         </Text>
       </InfoBanner>
 
@@ -151,6 +193,18 @@ export default function ClubeScreen() {
         <StatCard label="MRR" value={formatarPreco(mrr)} hint="receita recorrente / mês" />
       </View>
 
+      <Text className="mb-3 text-sm font-medium uppercase tracking-wide text-slate-500 dark:text-stone-400">
+        Planos do clube
+      </Text>
+      <View className="mb-8 flex-row flex-wrap gap-3">
+        {Object.values(PLANOS).map((p) => (
+          <PlanoResumo key={p.nome} plano={p} estreito={estreito} />
+        ))}
+      </View>
+
+      <Text className="mb-3 text-sm font-medium uppercase tracking-wide text-slate-500 dark:text-stone-400">
+        Assinantes
+      </Text>
       {ASSINATURAS_ORDENADAS.length === 0 ? (
         <EmptyState message="Nenhuma assinatura cadastrada ainda." />
       ) : (
