@@ -1,7 +1,7 @@
 """Endpoints REST de Usuários."""
 from fastapi import APIRouter, Depends, status
 
-from app.core.auth import get_current_user, require_admin
+from app.core.auth import require_admin, require_staff
 from app.core.dependencies import get_usuario_service
 from app.models.usuario import UsuarioCreate, UsuarioOut, UsuarioUpdate
 from app.services.usuario_service import UsuarioService
@@ -12,8 +12,8 @@ router = APIRouter(prefix="/usuarios", tags=["usuarios"])
 @router.get(
     "",
     response_model=list[UsuarioOut],
-    summary="Lista todos os usuários (autenticado)",
-    dependencies=[Depends(get_current_user)],
+    summary="Lista todos os usuários (equipe)",
+    dependencies=[Depends(require_staff)],
 )
 async def listar(service: UsuarioService = Depends(get_usuario_service)):
     return await service.listar()
@@ -22,8 +22,8 @@ async def listar(service: UsuarioService = Depends(get_usuario_service)):
 @router.get(
     "/{usuario_id}",
     response_model=UsuarioOut,
-    summary="Busca um usuário por ID (autenticado)",
-    dependencies=[Depends(get_current_user)],
+    summary="Busca um usuário por ID (equipe)",
+    dependencies=[Depends(require_staff)],
 )
 async def buscar(usuario_id: str, service: UsuarioService = Depends(get_usuario_service)):
     return await service.buscar(usuario_id)

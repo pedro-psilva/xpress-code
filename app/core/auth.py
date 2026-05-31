@@ -29,3 +29,9 @@ def require_admin(usuario: dict = Depends(get_current_user)) -> dict:
     if usuario.get("perfil") != "admin":
         raise ForbiddenError("Acesso restrito a administradores.")
     return usuario
+
+
+def require_staff(usuario: dict = Depends(get_current_user)) -> dict:
+    if usuario.get("perfil") not in {"admin", "profissional"}:
+        raise ForbiddenError("Acesso restrito a equipe da barbearia.")
+    return usuario

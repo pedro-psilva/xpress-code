@@ -12,22 +12,22 @@ class Perfil(str, Enum):
 
 
 class UsuarioBase(BaseModel):
-    nome: str = Field(..., min_length=1, examples=["João da Silva"])
-    email: EmailStr = Field(..., examples=["joao@exemplo.com"])
-    telefone: str | None = Field(default=None, examples=["+55 31 90000-0000"])
+    nome: str = Field(..., min_length=1, max_length=120, examples=["João da Silva"])
+    email: EmailStr = Field(..., max_length=254, examples=["joao@exemplo.com"])
+    telefone: str | None = Field(default=None, max_length=30, examples=["+55 31 90000-0000"])
     perfil: Perfil = Field(default=Perfil.cliente)
 
 
 class UsuarioCreate(UsuarioBase):
-    senha: str = Field(..., min_length=6, examples=["senha123"])
+    senha: str = Field(..., min_length=6, max_length=128, examples=["senha123"])
 
 
 class UsuarioUpdate(BaseModel):
-    nome: str | None = Field(default=None, min_length=1)
-    email: EmailStr | None = None
-    telefone: str | None = None
+    nome: str | None = Field(default=None, min_length=1, max_length=120)
+    email: EmailStr | None = Field(default=None, max_length=254)
+    telefone: str | None = Field(default=None, max_length=30)
     perfil: Perfil | None = None
-    senha: str | None = Field(default=None, min_length=6)
+    senha: str | None = Field(default=None, min_length=6, max_length=128)
 
 
 class UsuarioOut(UsuarioBase):

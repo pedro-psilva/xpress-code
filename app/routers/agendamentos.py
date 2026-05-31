@@ -3,7 +3,7 @@ from datetime import date
 
 from fastapi import APIRouter, Depends, Query, status
 
-from app.core.auth import get_current_user
+from app.core.auth import require_staff
 from app.core.dependencies import get_agendamento_service
 from app.models.agendamento import AgendamentoCreate, AgendamentoOut
 from app.services.agendamento_service import AgendamentoService
@@ -11,7 +11,7 @@ from app.services.agendamento_service import AgendamentoService
 router = APIRouter(
     prefix="/agendamentos",
     tags=["agendamentos"],
-    dependencies=[Depends(get_current_user)],
+    dependencies=[Depends(require_staff)],
 )
 
 

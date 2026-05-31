@@ -44,9 +44,26 @@ class Settings(BaseSettings):
         return value
 
     # JWT (usado a partir do M2)
-    jwt_secret: str = "troque-este-valor"
+    jwt_secret: str = ""
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 60
+
+    @field_validator("jwt_secret", mode="after")
+    @classmethod
+    def _jwt_secret_obrigatorio(cls, value: str) -> str:
+        if not value:
+            raise ValueError(
+                "JWT_SECRET nao definido. Configure no .env (ver .env.example)."
+            )
+        if "troque" in value.lower():
+            import sys
+
+            print(
+                "[!] AVISO: JWT_SECRET parece um valor de exemplo. "
+                "Defina um segredo forte antes de subir em producao.",
+                file=sys.stderr,
+            )
+        return value
 
     # WhatsApp Cloud API (Meta). Opcional — sem META_ACCESS_TOKEN o /whatsapp
     # responde "não configurado" e o webhook é ignorado.
