@@ -30,6 +30,11 @@ export function formatarHora(iso) {
   return `${pad(data.getHours())}:${pad(data.getMinutes())}`;
 }
 
+export function formatarData(iso) {
+  const data = new Date(iso);
+  return `${pad(data.getDate())}/${pad(data.getMonth() + 1)}/${data.getFullYear()}`;
+}
+
 export function formatarDataHora(iso) {
   const data = new Date(iso);
   return `${pad(data.getDate())}/${pad(data.getMonth() + 1)}/${data.getFullYear()} ${formatarHora(iso)}`;
