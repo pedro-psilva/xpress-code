@@ -233,40 +233,78 @@ Select.Item = Picker.Item;
 
 export function Table({ columns, rows, keyExtractor, onRowPress }) {
   return (
-    <Card>
-      <View className="flex-row border-b border-slate-200 dark:border-stone-800 py-3">
-        {columns.map((coluna) => (
-          <Text
-            key={coluna.key}
-            style={{ flex: coluna.flex ?? 1 }}
-            className="px-3 text-xs font-medium uppercase text-slate-500 dark:text-stone-400"
-          >
-            {coluna.header}
-          </Text>
-        ))}
+    <>
+      <View className="flex flex-col gap-3 sm:hidden">
+        {rows.map((row) => {
+          const cartao = (
+            <Card className="p-4">
+              {columns.map((coluna) => {
+                const cabecalho = coluna.header || coluna.mobileLabel;
+                return (
+                  <View
+                    key={coluna.key}
+                    className="flex-row items-start justify-between gap-3 py-1.5"
+                  >
+                    {cabecalho ? (
+                      <Text className="flex-1 text-xs font-medium uppercase text-slate-500 dark:text-stone-400">
+                        {cabecalho}
+                      </Text>
+                    ) : null}
+                    <View className={cabecalho ? 'max-w-[60%] items-end' : 'flex-1'}>
+                      {coluna.render(row)}
+                    </View>
+                  </View>
+                );
+              })}
+            </Card>
+          );
+          return onRowPress ? (
+            <Pressable key={keyExtractor(row)} onPress={() => onRowPress(row)}>
+              {cartao}
+            </Pressable>
+          ) : (
+            <View key={keyExtractor(row)}>{cartao}</View>
+          );
+        })}
       </View>
-      {rows.map((row, indice) => {
-        const ultima = indice === rows.length - 1;
-        const conteudo = (
-          <View
-            className={`flex-row items-center py-3 ${ultima ? '' : 'border-b border-slate-100 dark:border-stone-800'}`}
-          >
+
+      <View className="hidden sm:flex">
+        <Card>
+          <View className="flex-row border-b border-slate-200 dark:border-stone-800 py-3">
             {columns.map((coluna) => (
-              <View key={coluna.key} style={{ flex: coluna.flex ?? 1 }} className="px-3">
-                {coluna.render(row)}
-              </View>
+              <Text
+                key={coluna.key}
+                style={{ flex: coluna.flex ?? 1 }}
+                className="px-3 text-xs font-medium uppercase text-slate-500 dark:text-stone-400"
+              >
+                {coluna.header}
+              </Text>
             ))}
           </View>
-        );
-        return onRowPress ? (
-          <Pressable key={keyExtractor(row)} onPress={() => onRowPress(row)}>
-            {conteudo}
-          </Pressable>
-        ) : (
-          <View key={keyExtractor(row)}>{conteudo}</View>
-        );
-      })}
-    </Card>
+          {rows.map((row, indice) => {
+            const ultima = indice === rows.length - 1;
+            const conteudo = (
+              <View
+                className={`flex-row items-center py-3 ${ultima ? '' : 'border-b border-slate-100 dark:border-stone-800'}`}
+              >
+                {columns.map((coluna) => (
+                  <View key={coluna.key} style={{ flex: coluna.flex ?? 1 }} className="px-3">
+                    {coluna.render(row)}
+                  </View>
+                ))}
+              </View>
+            );
+            return onRowPress ? (
+              <Pressable key={keyExtractor(row)} onPress={() => onRowPress(row)}>
+                {conteudo}
+              </Pressable>
+            ) : (
+              <View key={keyExtractor(row)}>{conteudo}</View>
+            );
+          })}
+        </Card>
+      </View>
+    </>
   );
 }
 

@@ -32,6 +32,8 @@ function tomStatus(status) {
   return { tom: 'red', label: 'token inválido' };
 }
 
+const WEBHOOK_URL = `${process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000/api/v1'}/whatsapp/webhook`;
+
 export default function WhatsAppScreen() {
   const { isAdmin } = useAuth();
   const { tema } = useTheme();
@@ -40,27 +42,17 @@ export default function WhatsAppScreen() {
   const [erro, setErro] = useState('');
   const [copiado, setCopiado] = useState(false);
 
-  async function carregar() {
-    try {
-      setStatus(await statusIntegracao());
-    } catch (e) {
-      setErro(getErrorMessage(e));
-    } finally {
-      setLoading(false);
-    }
-  }
-
   useEffect(() => {
-    if (!isAdmin) {
-      setLoading(false);
-      return;
-    }
-    carregar();
+    if (!isAdmin) return;
+    statusIntegracao()
+      .then(setStatus)
+      .catch((e) => setErro(getErrorMessage(e)))
+      .finally(() => setLoading(false));
   }, [isAdmin]);
 
   async function copiarWebhook() {
     if (Platform.OS === 'web' && navigator?.clipboard) {
-      await navigator.clipboard.writeText(webhookUrl);
+      await navigator.clipboard.writeText(WEBHOOK_URL);
       setCopiado(true);
       setTimeout(() => setCopiado(false), 2000);
     }
@@ -92,7 +84,6 @@ export default function WhatsAppScreen() {
   }
 
   const { tom, label } = tomStatus(status);
-  const webhookUrl = `${process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000/api/v1'}/whatsapp/webhook`;
 
   return (
     <Screen>
@@ -153,8 +144,12 @@ export default function WhatsAppScreen() {
         <Text className="text-sm font-medium text-slate-500 dark:text-stone-400">
           URL do webhook
         </Text>
-        <Text className="mt-2 font-mono text-xs text-slate-700 dark:text-stone-200">
-          {webhookUrl}
+        <Text
+          selectable
+          className="mt-2 font-mono text-xs text-slate-700 dark:text-stone-200"
+          style={Platform.OS === 'web' ? { wordBreak: 'break-all' } : undefined}
+        >
+          {WEBHOOK_URL}
         </Text>
         <Text className="mt-2 text-xs text-slate-500 dark:text-stone-400">
           Cole no painel da Meta em &quot;WhatsApp → Configuration → Webhook&quot;.

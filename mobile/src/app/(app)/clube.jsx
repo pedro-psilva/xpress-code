@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Text, View } from 'react-native';
+import { Text, useWindowDimensions, View } from 'react-native';
 
 import { useAuth } from '@/auth/auth-context';
 import {
@@ -37,11 +37,11 @@ const PLANOS = [
   },
 ];
 
-function PlanoCard({ plano }) {
+function PlanoCard({ plano, estreito }) {
   return (
     <Card
       className={`flex-1 p-6 ${plano.recomendado ? 'border-brand-400 dark:border-brand-400' : ''}`}
-      style={{ minWidth: 240 }}
+      style={estreito ? undefined : { minWidth: 240 }}
     >
       <View className="mb-3 flex-row items-center justify-between">
         <Text className="text-xl font-bold text-slate-800 dark:text-stone-100">{plano.nome}</Text>
@@ -69,6 +69,8 @@ function PlanoCard({ plano }) {
 export default function ClubeScreen() {
   const { isAdmin } = useAuth();
   const { tema } = useTheme();
+  const { width } = useWindowDimensions();
+  const estreito = width < 640;
   const corIcone = tema === 'dark' ? '#fcd34d' : '#b97e21';
 
   return (
@@ -94,7 +96,7 @@ export default function ClubeScreen() {
 
       <View className="flex-row flex-wrap gap-4">
         {PLANOS.map((plano) => (
-          <PlanoCard key={plano.id} plano={plano} />
+          <PlanoCard key={plano.id} plano={plano} estreito={estreito} />
         ))}
       </View>
     </Screen>

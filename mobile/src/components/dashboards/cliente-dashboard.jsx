@@ -1,7 +1,7 @@
 // Fluxo do cliente: chamada para agendar, próximos horários marcados e o
 // catálogo de serviços disponíveis.
 import { useEffect, useState } from 'react';
-import { Text, View } from 'react-native';
+import { Text, useWindowDimensions, View } from 'react-native';
 
 import { listarAgendamentos } from '@/api/agendamentos';
 import { getErrorMessage } from '@/api/client';
@@ -20,6 +20,8 @@ import { formatarDataHora, formatarPreco, porInicio } from '@/lib/format';
 
 export default function ClienteDashboard() {
   const { userId } = useAuth();
+  const { width } = useWindowDimensions();
+  const estreito = width < 640;
   const [proximos, setProximos] = useState([]);
   const [nomes, setNomes] = useState({});
   const [servicoNomes, setServicoNomes] = useState({});
@@ -67,7 +69,7 @@ export default function ClienteDashboard() {
       ) : (
         <View className="mb-8 flex-row flex-wrap gap-3">
           {proximos.map((a) => (
-            <Card key={a.id} className="flex-1 p-4" style={{ minWidth: 220 }}>
+            <Card key={a.id} className="flex-1 p-4" style={estreito ? undefined : { minWidth: 220 }}>
               <Text className="text-sm font-semibold text-slate-800 dark:text-stone-100">
                 {servicoNomes[a.servico_id] || 'Serviço'}
               </Text>
@@ -90,7 +92,7 @@ export default function ClienteDashboard() {
       ) : (
         <View className="flex-row flex-wrap gap-3">
           {servicos.map((s) => (
-            <Card key={s.id} className="flex-1 p-4" style={{ minWidth: 180 }}>
+            <Card key={s.id} className="flex-1 p-4" style={estreito ? undefined : { minWidth: 180 }}>
               <Text className="text-sm font-semibold text-slate-800 dark:text-stone-100">{s.nome}</Text>
               <Text className="mt-1 text-sm text-slate-600 dark:text-stone-300">{formatarPreco(s.preco)}</Text>
               <Text className="mt-1 text-xs text-slate-400 dark:text-stone-500">{s.duracao_minutos} min</Text>
