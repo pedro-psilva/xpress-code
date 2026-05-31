@@ -39,19 +39,18 @@ uvicorn app.main:app --reload
 
 A API sobe em `http://localhost:8000`.
 
-### Frontend (SPA React)
+### Cliente oficial (Expo — Web/Android/iOS)
 
 Em outro terminal, com a API no ar:
 
 ```bash
-cd frontend
+cd mobile
 npm install
-copy .env.example .env        # opcional (usa http://localhost:8000/api/v1 por padrão)
-npm run dev
+npm run web                   # SPA assíncrona em http://localhost:8081
 ```
 
-A interface fica em `http://localhost:5173`. A navegação entre as telas
-(lista → detalhe → formulário) é assíncrona, sem recarregar a página.
+Para alcançar do celular na LAN: `uvicorn ... --host 0.0.0.0` e ajustar
+`EXPO_PUBLIC_API_URL` no `mobile/.env`. Detalhes em [mobile/README.md](./mobile/README.md).
 
 ## Documentação da API (Swagger)
 
@@ -162,6 +161,35 @@ o resto da API segue funcionando normalmente.
 | `META_ACCESS_TOKEN`          | Token Bearer para chamar a Graph API               |
 | `META_APP_SECRET`            | App Secret usado para validar HMAC do webhook      |
 | `META_WEBHOOK_VERIFY_TOKEN`  | Token combinado com a Meta no handshake do webhook |
+
+## Integração Brevo (email transacional)
+
+Sem `BREVO_API_KEY` o envio de email é silenciosamente ignorado (no-op).
+Gere uma chave em https://app.brevo.com/settings/keys/api e configure
+`BREVO_SENDER_EMAIL`/`BREVO_SENDER_NAME` para o remetente exibido.
+
+| Variável             | Descrição                                  |
+|----------------------|--------------------------------------------|
+| `BREVO_API_KEY`      | Chave da API Brevo                         |
+| `BREVO_SENDER_EMAIL` | Email do remetente das mensagens           |
+| `BREVO_SENDER_NAME`  | Nome do remetente exibido para o cliente   |
+
+## Integração InfinitePay (cobranças via link)
+
+A InfinitePay Checkout não usa API key tradicional — o estabelecimento é
+identificado pelo **handle (InfiniteTag)**, que aparece em
+https://app.infinitepay.io/configuracoes. Sem `INFINITEPAY_HANDLE`, o
+endpoint `POST /assinaturas/{id}/cobranca` devolve 503.
+
+Para receber confirmação do pagamento, a `PUBLIC_API_URL` precisa ser uma
+URL HTTPS pública (a InfinitePay vai bater em
+`{PUBLIC_API_URL}/webhooks/infinitepay`). Em dev, use ngrok.
+
+| Variável                   | Descrição                                          |
+|----------------------------|----------------------------------------------------|
+| `INFINITEPAY_HANDLE`       | InfiniteTag do estabelecimento                     |
+| `INFINITEPAY_REDIRECT_URL` | Para onde o cliente é enviado após pagar (opcional)|
+| `PUBLIC_API_URL`           | URL HTTPS pública da API (usada pelo webhook)      |
 
 ### Endpoints
 
