@@ -1,4 +1,4 @@
-import { Link, Redirect, useRouter } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Image, Text, View } from 'react-native';
 
@@ -43,7 +43,7 @@ export default function LoginScreen() {
           resizeMode="contain"
         />
         <Text className="mb-6 text-center text-sm text-slate-500 dark:text-stone-400">
-          Acesse sua conta
+          Acesso da equipe da barbearia
         </Text>
         <ErrorBanner message={erro} />
         <View className="gap-4">
@@ -64,12 +64,6 @@ export default function LoginScreen() {
             onPress={handleSubmit}
             loading={enviando}
           />
-        </View>
-        <View className="mt-4 flex-row justify-center">
-          <Text className="text-sm text-slate-500 dark:text-stone-400">Não tem conta? </Text>
-          <Link href="/register" asChild>
-            <Text className="text-sm font-medium text-brand-700">Cadastre-se</Text>
-          </Link>
         </View>
       </Card>
     </View>
