@@ -132,3 +132,45 @@ Veja [.env.example](./.env.example). Principais:
 | `JWT_EXPIRE_MINUTES`| Expiração do token (minutos)       | `60`                          |
 
 > Nenhum segredo é versionado: o `.env` está no `.gitignore`.
+
+## Integração WhatsApp (Cloud API oficial — Meta)
+
+Usamos a **WhatsApp Cloud API** da Meta. Sem credenciais, os endpoints
+`/whatsapp/*` respondem como "não configurado" e o webhook rejeita tudo —
+o resto da API segue funcionando normalmente.
+
+### Pré-requisitos (uma vez, fora do código)
+
+1. Criar um app em [developers.facebook.com](https://developers.facebook.com) e
+   adicionar o produto **WhatsApp**.
+2. Em **API Setup**, copiar o `Phone Number ID` e gerar um **Access Token**
+   (de teste para validar; permanente via System User para produção).
+3. Em **App Settings → Basic**, copiar o `App Secret` (para validar a
+   assinatura `X-Hub-Signature-256` dos webhooks).
+4. Em **WhatsApp → Configuration → Webhook**:
+   - **Callback URL:** `https://<seu-host-publico>/api/v1/whatsapp/webhook`
+     (em dev, expor o uvicorn com `ngrok http 8000`).
+   - **Verify Token:** o mesmo valor de `META_WEBHOOK_VERIFY_TOKEN` no `.env`.
+   - **Subscrever** o campo `messages`.
+
+### Variáveis
+
+| Variável                     | Descrição                                          |
+|------------------------------|----------------------------------------------------|
+| `META_GRAPH_API_VERSION`     | Versão da Graph API (padrão `v21.0`)               |
+| `META_PHONE_NUMBER_ID`       | ID do número de telefone no painel da Meta         |
+| `META_ACCESS_TOKEN`          | Token Bearer para chamar a Graph API               |
+| `META_APP_SECRET`            | App Secret usado para validar HMAC do webhook      |
+| `META_WEBHOOK_VERIFY_TOKEN`  | Token combinado com a Meta no handshake do webhook |
+
+### Endpoints
+
+| Método | Rota                          | Acesso | Descrição                              |
+|--------|-------------------------------|--------|----------------------------------------|
+| GET    | `/whatsapp/status`            | admin  | Verifica se as credenciais são válidas |
+| GET    | `/whatsapp/webhook`           | 🔓     | Handshake de verificação da Meta       |
+| POST   | `/whatsapp/webhook`           | 🔓 (HMAC) | Recebe mensagens; valida assinatura |
+
+Mensagens recebidas são processadas por um bot conversacional que cadastra o
+cliente pelo telefone (se for novo) e guia o agendamento passo a passo
+(serviço → profissional → data → hora).

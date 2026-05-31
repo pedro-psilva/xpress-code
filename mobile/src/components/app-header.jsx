@@ -12,6 +12,7 @@ const LINKS = [
   { href: '/usuarios', label: 'Usuários' },
   { href: '/agendamentos', label: 'Agendamentos' },
   { href: '/clube', label: 'Clube' },
+  { href: '/whatsapp', label: 'WhatsApp' },
 ];
 
 const SECUNDARIOS = [{ href: '/configuracoes', label: 'Configurações' }];

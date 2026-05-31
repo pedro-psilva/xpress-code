@@ -48,13 +48,13 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 60
 
-    # WhatsApp / Evolution API (opcional). Os endpoints /whatsapp/* só ficam
-    # uteis com o container Evolution no ar — sem ele devolvem 503 com
-    # mensagem explicando que a integração não está configurada.
-    whatsapp_api_url: str = "http://localhost:8080"
-    whatsapp_api_key: str = ""
-    whatsapp_instance_name: str = "xpress"
-    whatsapp_webhook_url: str = "http://host.docker.internal:8000/api/v1/whatsapp/webhook"
+    # WhatsApp Cloud API (Meta). Opcional — sem META_ACCESS_TOKEN o /whatsapp
+    # responde "não configurado" e o webhook é ignorado.
+    meta_graph_api_version: str = "v21.0"
+    meta_phone_number_id: str = ""
+    meta_access_token: str = ""
+    meta_app_secret: str = ""
+    meta_webhook_verify_token: str = ""
 
 
 settings = Settings()

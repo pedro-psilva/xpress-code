@@ -8,7 +8,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from app.core.exceptions import DomainError
 from app.models.agendamento import AgendamentoCreate
 from app.models.usuario import Perfil, UsuarioCreate
-from app.models.whatsapp import ConnectResponse, InstanciaStatus, StatusConexao
+from app.models.whatsapp import IntegracaoStatus
 from app.services.agendamento_service import AgendamentoService
 from app.services.servico_service import ServicoService
 from app.services.usuario_service import UsuarioService
@@ -36,62 +36,35 @@ class WhatsAppService:
         self._conversas = db["conversas_whatsapp"]
         self._usuarios = db["usuarios"]
 
-    # ---------- Instância ----------
-
-    async def status_instancia(self) -> InstanciaStatus:
+    async def status(self) -> IntegracaoStatus:
         if not self._client.configurado:
-            return InstanciaStatus(
-                instancia=self._client.instance,
-                estado=StatusConexao.desconectado,
-                configurado=False,
-            )
-        data = await self._client.status() or {}
-        estado_str = (data.get("instance") or {}).get("state") or "close"
-        try:
-            estado = StatusConexao(estado_str)
-        except ValueError:
-            estado = StatusConexao.desconectado
-        numero = (data.get("instance") or {}).get("number")
-        return InstanciaStatus(
-            instancia=self._client.instance,
-            estado=estado,
+            return IntegracaoStatus(configurado=False, valido=False)
+        info = await self._client.info_numero()
+        if info is None:
+            return IntegracaoStatus(configurado=True, valido=False)
+        return IntegracaoStatus(
             configurado=True,
-            numero=numero,
+            valido=True,
+            numero=info.get("display_phone_number"),
+            nome_verificado=info.get("verified_name"),
         )
 
-    async def conectar_instancia(self) -> ConnectResponse:
-        if not self._client.configurado:
-            raise DomainError(
-                "Integração WhatsApp não configurada (defina WHATSAPP_API_KEY no .env)."
-            )
-        # Tenta criar — se já existir, Evolution devolve 403/409 e seguimos.
-        await self._client.criar_instancia()
-        resp = await self._client.conectar()
-        qr = resp.get("base64") or (resp.get("qrcode") or {}).get("base64")
-        estado_str = resp.get("instance", {}).get("state") or "connecting"
-        try:
-            estado = StatusConexao(estado_str)
-        except ValueError:
-            estado = StatusConexao.conectando
-        return ConnectResponse(estado=estado, qrcode_base64=qr)
-
-    async def desconectar_instancia(self) -> None:
-        if self._client.configurado:
-            await self._client.desconectar()
-
-    # ---------- Webhook ----------
-
     async def processar_webhook(self, payload: dict[str, Any]) -> None:
-        if (payload.get("event") or "").lower() != "messages.upsert":
+        if payload.get("object") != "whatsapp_business_account":
             return
-        data = payload.get("data") or {}
-        if data.get("key", {}).get("fromMe"):
-            return
-        telefone = _extrair_telefone(data.get("key", {}).get("remoteJid"))
-        texto = _extrair_texto(data.get("message") or {})
+        for entry in payload.get("entry") or []:
+            for change in entry.get("changes") or []:
+                if change.get("field") != "messages":
+                    continue
+                value = change.get("value") or {}
+                for msg in value.get("messages") or []:
+                    await self._tratar_mensagem(msg)
+
+    async def _tratar_mensagem(self, msg: dict[str, Any]) -> None:
+        telefone = msg.get("from")
+        texto = _extrair_texto(msg)
         if not telefone or not texto:
             return
-
         resposta = await self._processar_mensagem(telefone, texto.strip())
         if resposta:
             await self._client.enviar_texto(telefone, resposta)
@@ -305,19 +278,12 @@ class WhatsAppService:
         ]
 
 
-def _extrair_telefone(jid: str | None) -> str | None:
-    if not jid:
+def _extrair_texto(msg: dict[str, Any]) -> str | None:
+    if not msg:
         return None
-    return jid.split("@")[0].split(":")[0]
-
-
-def _extrair_texto(message: dict[str, Any]) -> str | None:
-    if not message:
-        return None
-    return (
-        message.get("conversation")
-        or (message.get("extendedTextMessage") or {}).get("text")
-    )
+    if msg.get("type") == "text":
+        return (msg.get("text") or {}).get("body")
+    return None
 
 
 def _parse_indice(texto: str, total: int) -> int | None:
