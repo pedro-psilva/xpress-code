@@ -65,13 +65,19 @@ class Settings(BaseSettings):
             )
         return value
 
-    # WhatsApp Cloud API (Meta). Opcional — sem META_ACCESS_TOKEN o /whatsapp
-    # responde "não configurado" e o webhook é ignorado.
     meta_graph_api_version: str = "v21.0"
     meta_phone_number_id: str = ""
     meta_access_token: str = ""
     meta_app_secret: str = ""
     meta_webhook_verify_token: str = ""
+
+    brevo_api_key: str = ""
+    brevo_sender_email: str = "no-reply@xpress.local"
+    brevo_sender_name: str = "Barbearia Xpress Code"
+
+    infinitepay_handle: str = ""
+    infinitepay_redirect_url: str = ""
+    public_api_url: str = "http://localhost:8000/api/v1"
 
 
 settings = Settings()

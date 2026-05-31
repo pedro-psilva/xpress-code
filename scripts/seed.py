@@ -25,6 +25,22 @@ SERVICOS_BASE = [
     {"nome": "Platinado", "preco": 150.00, "duracao_minutos": 120, "ativo": True},
 ]
 
+CLIENTES_DEMO = [
+    {"nome": "Lucas Andrade", "telefone": "5531988880001"},
+    {"nome": "Rafael Oliveira", "telefone": "5531988880002"},
+    {"nome": "Pedro Henrique Costa", "telefone": "5531988880003"},
+    {"nome": "Matheus Rocha", "telefone": "5531988880004"},
+    {"nome": "Bruno Carvalho", "telefone": "5531988880005"},
+]
+
+ASSINATURAS_DEMO = [
+    {"cliente_telefone": "5531988880001", "plano_nome": "Flex",      "inclui_barba": False, "status": "ativa"},
+    {"cliente_telefone": "5531988880002", "plano_nome": "Essencial", "inclui_barba": True,  "status": "ativa"},
+    {"cliente_telefone": "5531988880003", "plano_nome": "UAU",       "inclui_barba": False, "status": "ativa"},
+    {"cliente_telefone": "5531988880004", "plano_nome": "Flex",      "inclui_barba": True,  "status": "pendente"},
+    {"cliente_telefone": "5531988880005", "plano_nome": "UAU",       "inclui_barba": True,  "status": "ativa"},
+]
+
 PLANOS_BASE = [
     {
         "nome": "UAU",
@@ -99,12 +115,81 @@ async def seed_planos(db) -> None:
     )
 
 
+async def seed_clientes_demo(db) -> None:
+    import secrets
+
+    from app.core.security import hash_senha
+
+    inseridos = 0
+    for cliente in CLIENTES_DEMO:
+        if await db["usuarios"].find_one({"telefone": cliente["telefone"]}):
+            continue
+        await db["usuarios"].insert_one(
+            {
+                "nome": cliente["nome"],
+                "email": f"wa-{cliente['telefone']}@xpress.local",
+                "telefone": cliente["telefone"],
+                "perfil": "cliente",
+                "senha_hash": hash_senha(secrets.token_hex(16)),
+                "criado_em": datetime.now(timezone.utc),
+            }
+        )
+        inseridos += 1
+    print(
+        f"Clientes demo: {inseridos} novo(s), "
+        f"{len(CLIENTES_DEMO) - inseridos} ja existiam."
+    )
+
+
+async def seed_assinaturas_demo(db) -> None:
+    from datetime import timedelta
+
+    inseridos = 0
+    for assinatura in ASSINATURAS_DEMO:
+        cliente = await db["usuarios"].find_one(
+            {"telefone": assinatura["cliente_telefone"]}
+        )
+        plano = await db["planos"].find_one({"nome": assinatura["plano_nome"]})
+        if cliente is None or plano is None:
+            continue
+        cliente_id = str(cliente["_id"])
+        plano_id = str(plano["_id"])
+        if await db["assinaturas"].find_one(
+            {"cliente_id": cliente_id, "plano_id": plano_id}
+        ):
+            continue
+        agora = datetime.now(timezone.utc)
+        proxima = (
+            agora - timedelta(days=3)
+            if assinatura["status"] == "pendente"
+            else agora + timedelta(days=20)
+        )
+        await db["assinaturas"].insert_one(
+            {
+                "cliente_id": cliente_id,
+                "plano_id": plano_id,
+                "inclui_barba": assinatura["inclui_barba"],
+                "status": assinatura["status"],
+                "proxima_cobranca": proxima,
+                "ultima_cobranca": None,
+                "ultimo_link_pagamento": None,
+            }
+        )
+        inseridos += 1
+    print(
+        f"Assinaturas demo: {inseridos} novo(s), "
+        f"{len(ASSINATURAS_DEMO) - inseridos} ja existiam."
+    )
+
+
 async def main() -> None:
     await connect_to_mongo()
     db = get_database()
     await seed_admin(db)
     await seed_servicos(db)
     await seed_planos(db)
+    await seed_clientes_demo(db)
+    await seed_assinaturas_demo(db)
     await close_mongo_connection()
 
 
