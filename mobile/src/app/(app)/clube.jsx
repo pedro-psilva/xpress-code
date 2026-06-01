@@ -26,7 +26,7 @@ import {
   StatCard,
   Table,
 } from '@/components/ui';
-import { confirmar } from '@/lib/confirm';
+import { confirmar, escolher } from '@/lib/confirm';
 import { formatarData, formatarPreco } from '@/lib/format';
 import { useTheme } from '@/theme/theme-context';
 
@@ -136,12 +136,23 @@ export default function ClubeScreen() {
       .catch((e) => setErro(getErrorMessage(e)));
   }
 
-  async function handleCobrar(id) {
+  async function handleCobrar(assinatura) {
+    const nome = mapaClientes[assinatura.cliente_id] ?? 'cliente';
+    const valor = valorMensal(assinatura, mapaPlanos);
+    const ok = await confirmar(
+      `Gerar cobrança para ${nome} no valor de ${formatarPreco(valor)}?`,
+      {
+        titulo: 'Gerar cobrança',
+        textoConfirmar: 'Gerar e enviar',
+        variant: 'primary',
+      },
+    );
+    if (!ok) return;
     setErro('');
     setResultadoCobranca(null);
-    setCobrando(id);
+    setCobrando(assinatura.id);
     try {
-      const r = await gerarCobranca(id);
+      const r = await gerarCobranca(assinatura.id);
       setResultadoCobranca(r);
       await refreshAssinaturas();
     } catch (e) {
@@ -161,10 +172,20 @@ export default function ClubeScreen() {
     }
   }
 
-  async function handleToggleStatus(assinatura) {
-    const proximo = assinatura.status === 'ativa' ? 'inativa' : 'ativa';
+  async function handleMudarStatus(assinatura) {
+    const nome = mapaClientes[assinatura.cliente_id] ?? 'cliente';
+    const novo = await escolher({
+      titulo: `Status — ${nome}`,
+      mensagem: 'Defina o novo status da assinatura:',
+      opcoes: [
+        { label: 'Ativa', value: 'ativa', variant: 'primary' },
+        { label: 'Pagamento pendente', value: 'pendente', variant: 'secondary' },
+        { label: 'Inativa', value: 'inativa', variant: 'danger' },
+      ],
+    });
+    if (!novo || novo === assinatura.status) return;
     try {
-      const atualizado = await atualizarStatusAssinatura(assinatura.id, proximo);
+      const atualizado = await atualizarStatusAssinatura(assinatura.id, novo);
       setAssinaturas((atual) =>
         atual.map((a) => (a.id === assinatura.id ? atualizado : a)),
       );
@@ -260,20 +281,20 @@ export default function ClubeScreen() {
         <IconButton
           icon="cash-outline"
           label="Gerar cobrança"
-          onPress={() => handleCobrar(a.id)}
+          onPress={() => handleCobrar(a)}
           disabled={cobrando === a.id || a.status === 'inativa'}
         />
       ),
     },
     {
-      key: 'toggle',
+      key: 'status',
       header: '',
       flex: 0.5,
       render: (a) => (
         <IconButton
-          icon={a.status === 'inativa' ? 'play-outline' : 'pause-outline'}
-          label={a.status === 'inativa' ? 'Reativar' : 'Pausar'}
-          onPress={() => handleToggleStatus(a)}
+          icon="swap-horizontal-outline"
+          label="Mudar status"
+          onPress={() => handleMudarStatus(a)}
         />
       ),
     },

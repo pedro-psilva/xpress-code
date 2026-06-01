@@ -1,12 +1,13 @@
-let _abrirModal = null;
+let _abrir = null;
 
 export function registrarConfirmModal(fn) {
-  _abrirModal = fn;
+  _abrir = fn;
 }
 
 export function confirmar(mensagem, opcoes = {}) {
-  if (_abrirModal) {
-    return _abrirModal({
+  if (_abrir) {
+    return _abrir({
+      tipo: 'confirmar',
       mensagem,
       titulo: opcoes.titulo ?? 'Confirmar',
       textoConfirmar: opcoes.textoConfirmar ?? 'Confirmar',
@@ -18,4 +19,11 @@ export function confirmar(mensagem, opcoes = {}) {
     return Promise.resolve(window.confirm(mensagem));
   }
   return Promise.resolve(false);
+}
+
+export function escolher({ titulo = 'Escolher', mensagem, opcoes }) {
+  if (_abrir) {
+    return _abrir({ tipo: 'escolher', titulo, mensagem, opcoes });
+  }
+  return Promise.resolve(null);
 }

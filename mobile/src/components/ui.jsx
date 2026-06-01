@@ -219,26 +219,43 @@ export function Input(props) {
 export function Select({ selectedValue, onValueChange, children, placeholder = 'Selecione…' }) {
   const { tema } = useTheme();
   const [aberto, setAberto] = useState(false);
+  const escuro = tema === 'dark';
 
   const itens = Children.toArray(children)
     .filter((c) => c?.props && 'value' in c.props)
     .map((c) => ({ label: c.props.label, value: c.props.value }));
   const selecionado = itens.find((i) => i.value === selectedValue);
-  const corChevron = tema === 'dark' ? '#a8a29e' : '#475569';
+  const corChevron = escuro ? '#a8a29e' : '#475569';
+
+  const triggerCls = escuro
+    ? 'flex-row items-center justify-between rounded-lg border border-stone-700 bg-stone-900 px-4 py-3'
+    : 'flex-row items-center justify-between rounded-lg border border-slate-300 bg-white px-4 py-3';
+  const textoTriggerCls = (sel) =>
+    sel
+      ? `flex-1 text-base ${escuro ? 'text-stone-100' : 'text-slate-800'}`
+      : `flex-1 text-base ${escuro ? 'text-stone-500' : 'text-slate-400'}`;
+  const cardCls = escuro
+    ? 'overflow-hidden rounded-xl border border-stone-800 bg-stone-900'
+    : 'overflow-hidden rounded-xl border border-slate-200 bg-white';
+  const itemCls = (ativo) => {
+    if (escuro) return ativo ? 'bg-stone-800 px-4 py-3' : 'px-4 py-3';
+    return ativo ? 'bg-brand-50 px-4 py-3' : 'px-4 py-3';
+  };
+  const itemTextCls = (ativo) => {
+    if (escuro) {
+      return ativo
+        ? 'text-base font-medium text-brand-200'
+        : 'text-base text-stone-200';
+    }
+    return ativo
+      ? 'text-base font-medium text-brand-700'
+      : 'text-base text-slate-700';
+  };
 
   return (
     <>
-      <Pressable
-        onPress={() => setAberto(true)}
-        className="flex-row items-center justify-between rounded-lg border border-slate-300 dark:border-stone-700 bg-white dark:bg-stone-900 px-4 py-3"
-      >
-        <Text
-          className={`flex-1 text-base ${
-            selecionado
-              ? 'text-slate-800 dark:text-stone-100'
-              : 'text-slate-400 dark:text-stone-500'
-          }`}
-        >
+      <Pressable onPress={() => setAberto(true)} className={triggerCls}>
+        <Text className={textoTriggerCls(selecionado)}>
           {selecionado ? selecionado.label : placeholder}
         </Text>
         <Ionicons name="chevron-down" size={18} color={corChevron} />
@@ -254,7 +271,7 @@ export function Select({ selectedValue, onValueChange, children, placeholder = '
           onPress={() => setAberto(false)}
         >
           <Pressable onPress={() => {}} className="w-full max-w-sm">
-            <Card className="overflow-hidden">
+            <View className={cardCls}>
               <ScrollView style={{ maxHeight: 340 }}>
                 {itens.map((it) => {
                   const ativo = it.value === selectedValue;
@@ -265,22 +282,14 @@ export function Select({ selectedValue, onValueChange, children, placeholder = '
                         onValueChange(it.value);
                         setAberto(false);
                       }}
-                      className={`px-4 py-3 ${ativo ? 'bg-brand-50 dark:bg-stone-800' : ''}`}
+                      className={itemCls(ativo)}
                     >
-                      <Text
-                        className={`text-base ${
-                          ativo
-                            ? 'font-medium text-brand-700 dark:text-brand-200'
-                            : 'text-slate-700 dark:text-stone-200'
-                        }`}
-                      >
-                        {it.label}
-                      </Text>
+                      <Text className={itemTextCls(ativo)}>{it.label}</Text>
                     </Pressable>
                   );
                 })}
               </ScrollView>
-            </Card>
+            </View>
           </Pressable>
         </Pressable>
       </Modal>
