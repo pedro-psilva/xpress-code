@@ -2,6 +2,7 @@
 
 A documentação OpenAPI/Swagger fica disponível em /docs (nativo do FastAPI).
 """
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
@@ -23,6 +24,8 @@ from app.routers import (
     whatsapp,
 )
 
+_PROD = os.getenv("ENVIRONMENT", "development").lower() == "production"
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -36,6 +39,9 @@ app = FastAPI(
     description="SaaS de gestão para barbearias — agendamentos, serviços e usuários.",
     version="0.1.0",
     lifespan=lifespan,
+    docs_url=None if _PROD else "/docs",
+    redoc_url=None if _PROD else "/redoc",
+    openapi_url=None if _PROD else "/openapi.json",
 )
 
 app.add_middleware(
