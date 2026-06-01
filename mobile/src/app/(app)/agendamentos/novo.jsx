@@ -10,16 +10,15 @@ import { useAuth } from '@/auth/auth-context';
 import {
   Button,
   Card,
+  DateTimeInput,
   ErrorBanner,
   Field,
-  Input,
   Loading,
   PageHeader,
   Screen,
   Select,
 } from '@/components/ui';
 
-// Formato aceito para o início (data e hora local), validado antes do envio.
 const FORMATO_DATA_HORA = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
 
 export default function NovoAgendamentoScreen() {
@@ -131,13 +130,11 @@ export default function NovoAgendamentoScreen() {
           </Field>
           <Field
             label="Início"
-            hint="Formato AAAA-MM-DDTHH:mm. O término é calculado pela duração do serviço."
+            hint="O término é calculado pela duração do serviço."
           >
-            <Input
+            <DateTimeInput
               value={form.data_hora_inicio}
-              onChangeText={(v) => update('data_hora_inicio', v)}
-              placeholder="2026-05-27T14:30"
-              autoCapitalize="none"
+              onChange={(v) => update('data_hora_inicio', v)}
             />
           </Field>
           <View className="flex-row gap-2 pt-2">

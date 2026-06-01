@@ -1,8 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
-import { Picker } from '@react-native-picker/picker';
+import { Children, useState } from 'react';
 import {
   ActivityIndicator,
+  Modal,
+  Platform,
   Pressable,
   ScrollView,
   Text,
@@ -214,22 +216,151 @@ export function Input(props) {
   );
 }
 
-export function Select({ selectedValue, onValueChange, children }) {
+export function Select({ selectedValue, onValueChange, children, placeholder = 'Selecione…' }) {
   const { tema } = useTheme();
+  const [aberto, setAberto] = useState(false);
+
+  const itens = Children.toArray(children)
+    .filter((c) => c?.props && 'value' in c.props)
+    .map((c) => ({ label: c.props.label, value: c.props.value }));
+  const selecionado = itens.find((i) => i.value === selectedValue);
+  const corChevron = tema === 'dark' ? '#a8a29e' : '#475569';
+
   return (
-    <View className="rounded-lg border border-slate-300 dark:border-stone-700 bg-white dark:bg-stone-900">
-      <Picker
-        selectedValue={selectedValue}
-        onValueChange={onValueChange}
-        dropdownIconColor={tema === 'dark' ? '#a8a29e' : '#475569'}
-        style={{ color: tema === 'dark' ? '#f5f5f4' : '#1e293b' }}
+    <>
+      <Pressable
+        onPress={() => setAberto(true)}
+        className="flex-row items-center justify-between rounded-lg border border-slate-300 dark:border-stone-700 bg-white dark:bg-stone-900 px-4 py-3"
       >
-        {children}
-      </Picker>
-    </View>
+        <Text
+          className={`flex-1 text-base ${
+            selecionado
+              ? 'text-slate-800 dark:text-stone-100'
+              : 'text-slate-400 dark:text-stone-500'
+          }`}
+        >
+          {selecionado ? selecionado.label : placeholder}
+        </Text>
+        <Ionicons name="chevron-down" size={18} color={corChevron} />
+      </Pressable>
+      <Modal
+        visible={aberto}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setAberto(false)}
+      >
+        <Pressable
+          className="flex-1 items-center justify-center bg-black/50 px-4"
+          onPress={() => setAberto(false)}
+        >
+          <Pressable onPress={() => {}} className="w-full max-w-sm">
+            <Card className="overflow-hidden">
+              <ScrollView style={{ maxHeight: 340 }}>
+                {itens.map((it) => {
+                  const ativo = it.value === selectedValue;
+                  return (
+                    <Pressable
+                      key={String(it.value)}
+                      onPress={() => {
+                        onValueChange(it.value);
+                        setAberto(false);
+                      }}
+                      className={`px-4 py-3 ${ativo ? 'bg-brand-50 dark:bg-stone-800' : ''}`}
+                    >
+                      <Text
+                        className={`text-base ${
+                          ativo
+                            ? 'font-medium text-brand-700 dark:text-brand-200'
+                            : 'text-slate-700 dark:text-stone-200'
+                        }`}
+                      >
+                        {it.label}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </ScrollView>
+            </Card>
+          </Pressable>
+        </Pressable>
+      </Modal>
+    </>
   );
 }
-Select.Item = Picker.Item;
+
+Select.Item = function SelectItem() {
+  return null;
+};
+
+export function DateTimeInput({ value, onChange }) {
+  const { tema } = useTheme();
+  const [data, hora] = (value || '').split('T');
+
+  if (Platform.OS === 'web') {
+    const corScheme = tema === 'dark' ? 'dark' : 'light';
+    const estiloInput = {
+      colorScheme: corScheme,
+      width: '100%',
+      borderRadius: 8,
+      borderWidth: 1,
+      paddingTop: 12,
+      paddingBottom: 12,
+      paddingLeft: 16,
+      paddingRight: 16,
+      fontSize: 16,
+      borderColor: tema === 'dark' ? '#44403c' : '#cbd5e1',
+      backgroundColor: tema === 'dark' ? '#1c1917' : '#ffffff',
+      color: tema === 'dark' ? '#f5f5f4' : '#1e293b',
+      fontFamily: 'inherit',
+    };
+
+    return (
+      <View className="flex-col gap-3 sm:flex-row">
+        <View className="flex-1">
+          <Text className="mb-1 text-xs uppercase tracking-wide text-slate-500 dark:text-stone-400">
+            Data
+          </Text>
+          <input
+            type="date"
+            value={data || ''}
+            onChange={(e) => {
+              const nova = e.target.value;
+              if (!nova) return onChange('');
+              onChange(`${nova}T${hora || '09:00'}`);
+            }}
+            style={estiloInput}
+          />
+        </View>
+        <View className="flex-1">
+          <Text className="mb-1 text-xs uppercase tracking-wide text-slate-500 dark:text-stone-400">
+            Hora
+          </Text>
+          <input
+            type="time"
+            value={hora || ''}
+            onChange={(e) => {
+              const nova = e.target.value;
+              if (!data) return onChange('');
+              onChange(`${data}T${nova}`);
+            }}
+            style={estiloInput}
+          />
+        </View>
+      </View>
+    );
+  }
+
+  return (
+    <TextInput
+      value={value}
+      onChangeText={onChange}
+      placeholder="2026-05-27T14:30"
+      placeholderTextColor={tema === 'dark' ? '#78716c' : '#94a3b8'}
+      autoCapitalize="none"
+      className="w-full rounded-lg border border-slate-300 dark:border-stone-700 bg-white dark:bg-stone-900 px-4 py-3 text-base text-slate-800 dark:text-stone-100"
+    />
+  );
+}
 
 export function Table({ columns, rows, keyExtractor, onRowPress }) {
   return (
