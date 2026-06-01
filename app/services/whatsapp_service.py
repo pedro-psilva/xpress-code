@@ -260,7 +260,7 @@ class WhatsAppService:
         # precisa logar no app web. Ele se cadastra depois se quiser.
         payload = UsuarioCreate(
             nome=nome,
-            email=f"wa-{telefone}@xpress.local",
+            email=f"wa-{telefone}@bot.xpresscode.com.br",
             senha=secrets.token_hex(16),
             telefone=telefone,
             perfil=Perfil.cliente,

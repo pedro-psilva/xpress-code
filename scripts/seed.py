@@ -127,7 +127,7 @@ async def seed_clientes_demo(db) -> None:
         await db["usuarios"].insert_one(
             {
                 "nome": cliente["nome"],
-                "email": f"wa-{cliente['telefone']}@xpress.local",
+                "email": f"wa-{cliente['telefone']}@bot.xpresscode.com.br",
                 "telefone": cliente["telefone"],
                 "perfil": "cliente",
                 "senha_hash": hash_senha(secrets.token_hex(16)),

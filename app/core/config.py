@@ -72,7 +72,7 @@ class Settings(BaseSettings):
     meta_webhook_verify_token: str = ""
 
     brevo_api_key: str = ""
-    brevo_sender_email: str = "no-reply@xpress.local"
+    brevo_sender_email: str = "no-reply@xpresscode.com.br"
     brevo_sender_name: str = "Barbearia Xpress Code"
 
     infinitepay_handle: str = ""
