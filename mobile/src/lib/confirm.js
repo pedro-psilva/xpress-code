@@ -1,16 +1,21 @@
-// Confirmação sim/não multiplataforma. No web usa o diálogo do navegador; no
-// mobile usa o Alert nativo. Sempre resolve para um booleano.
-import { Alert, Platform } from 'react-native';
+let _abrirModal = null;
 
-export function confirmar(mensagem) {
-  if (Platform.OS === 'web') {
+export function registrarConfirmModal(fn) {
+  _abrirModal = fn;
+}
+
+export function confirmar(mensagem, opcoes = {}) {
+  if (_abrirModal) {
+    return _abrirModal({
+      mensagem,
+      titulo: opcoes.titulo ?? 'Confirmar',
+      textoConfirmar: opcoes.textoConfirmar ?? 'Confirmar',
+      textoCancelar: opcoes.textoCancelar ?? 'Cancelar',
+      variant: opcoes.variant ?? 'danger',
+    });
+  }
+  if (typeof window !== 'undefined' && window.confirm) {
     return Promise.resolve(window.confirm(mensagem));
   }
-
-  return new Promise((resolve) => {
-    Alert.alert('Confirmar', mensagem, [
-      { text: 'Cancelar', style: 'cancel', onPress: () => resolve(false) },
-      { text: 'Confirmar', style: 'destructive', onPress: () => resolve(true) },
-    ]);
-  });
+  return Promise.resolve(false);
 }
