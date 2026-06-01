@@ -23,7 +23,7 @@ import {
   Table,
 } from '@/components/ui';
 import { confirmar } from '@/lib/confirm';
-import { formatarDataHora } from '@/lib/format';
+import { ehPassado, formatarDataHora } from '@/lib/format';
 
 const STATUS_TOM = {
   agendado: 'blue',
@@ -38,10 +38,6 @@ const STATUS_LABEL = {
   cancelado: 'cancelado',
   no_show: 'não compareceu',
 };
-
-function ehPassado(iso) {
-  return new Date(iso) < new Date();
-}
 
 export default function AgendamentosListScreen() {
   const [agendamentos, setAgendamentos] = useState([]);

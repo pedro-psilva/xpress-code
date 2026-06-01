@@ -18,6 +18,7 @@ import {
   Screen,
   Select,
 } from '@/components/ui';
+import { toast } from '@/lib/toast';
 
 const FORMATO_DATA_HORA = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
 
@@ -65,6 +66,7 @@ export default function NovoAgendamentoScreen() {
     setErro('');
     try {
       await criarAgendamento(form);
+      toast.success('Agendamento criado.');
       router.replace('/agendamentos');
     } catch (err) {
       setErro(getErrorMessage(err));

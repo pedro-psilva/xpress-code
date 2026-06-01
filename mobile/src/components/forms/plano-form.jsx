@@ -14,6 +14,7 @@ import {
   PageHeader,
   Screen,
 } from '@/components/ui';
+import { toast } from '@/lib/toast';
 
 const VAZIO = {
   nome: '',
@@ -85,6 +86,7 @@ export default function PlanoForm({ id }) {
     try {
       if (editando) await atualizarPlano(id, payload);
       else await criarPlano(payload);
+      toast.success(editando ? 'Plano atualizado.' : 'Plano criado.');
       router.replace('/planos');
     } catch (err) {
       setErro(getErrorMessage(err));

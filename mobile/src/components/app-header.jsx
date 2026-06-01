@@ -131,8 +131,17 @@ export function AppHeader() {
     >
       <View className="mx-auto w-full max-w-3xl flex-row items-center justify-between px-4 py-3">
         <Link href="/" asChild>
-          <Pressable className="flex-row items-center gap-2">
-            <Image source={monograma} style={{ width: 32, height: 32 }} resizeMode="contain" />
+          <Pressable
+            className="flex-row items-center gap-2"
+            accessibilityRole="link"
+            accessibilityLabel="Página inicial — Xpress Code"
+          >
+            <Image
+              source={monograma}
+              style={{ width: 32, height: 32 }}
+              resizeMode="contain"
+              accessibilityLabel="Logo Xpress Code"
+            />
             <Text
               className="text-lg font-bold"
               style={{ color: tema === 'dark' ? '#FFF6E5' : '#2B2622' }}

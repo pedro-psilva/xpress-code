@@ -5,6 +5,7 @@ import { useAuth } from '@/auth/auth-context';
 import { AppHeader } from '@/components/app-header';
 import { Button, Card } from '@/components/ui';
 import { ConfirmProvider } from '@/lib/confirm-provider';
+import { ToastProvider } from '@/lib/toast-provider';
 import { useBrandLogo } from '@/theme/theme-context';
 
 export default function AppLayout() {
@@ -46,11 +47,13 @@ export default function AppLayout() {
   }
 
   return (
-    <ConfirmProvider>
-      <View className="flex-1 bg-slate-50 dark:bg-stone-950">
-        <AppHeader />
-        <Stack screenOptions={{ headerShown: false }} />
-      </View>
-    </ConfirmProvider>
+    <ToastProvider>
+      <ConfirmProvider>
+        <View className="flex-1 bg-slate-50 dark:bg-stone-950">
+          <AppHeader />
+          <Stack screenOptions={{ headerShown: false }} />
+        </View>
+      </ConfirmProvider>
+    </ToastProvider>
   );
 }

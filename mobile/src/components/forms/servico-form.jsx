@@ -16,6 +16,7 @@ import {
   PageHeader,
   Screen,
 } from '@/components/ui';
+import { toast } from '@/lib/toast';
 
 const VAZIO = { nome: '', preco: '', duracao_minutos: '', ativo: true };
 
@@ -62,6 +63,7 @@ export default function ServicoForm({ id }) {
     try {
       if (editando) await atualizarServico(id, payload);
       else await criarServico(payload);
+      toast.success(editando ? 'Serviço atualizado.' : 'Serviço criado.');
       router.replace('/servicos');
     } catch (err) {
       setErro(getErrorMessage(err));

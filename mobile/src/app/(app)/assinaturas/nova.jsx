@@ -16,6 +16,7 @@ import {
   Screen,
   Select,
 } from '@/components/ui';
+import { toast } from '@/lib/toast';
 
 export default function NovaAssinaturaScreen() {
   const router = useRouter();
@@ -55,6 +56,7 @@ export default function NovaAssinaturaScreen() {
         plano_id: form.plano_id,
         inclui_barba: form.inclui_barba,
       });
+      toast.success('Assinatura criada.');
       router.replace('/clube');
     } catch (err) {
       setErro(getErrorMessage(err));

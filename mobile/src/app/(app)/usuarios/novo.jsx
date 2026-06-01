@@ -14,6 +14,7 @@ import {
   Screen,
   Select,
 } from '@/components/ui';
+import { toast } from '@/lib/toast';
 
 export default function NovoUsuarioScreen() {
   const router = useRouter();
@@ -45,6 +46,7 @@ export default function NovoUsuarioScreen() {
         email: form.email.trim(),
         telefone: form.telefone || null,
       });
+      toast.success('Usuário cadastrado.');
       router.replace('/usuarios');
     } catch (err) {
       setErro(getErrorMessage(err));
