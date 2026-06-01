@@ -18,6 +18,7 @@ _db = _Database()
 
 async def connect_to_mongo() -> None:
     _db.client = AsyncIOMotorClient(settings.mongo_uri)
+    await _criar_indices()
 
 
 async def close_mongo_connection() -> None:
@@ -30,3 +31,19 @@ def get_database() -> AsyncIOMotorDatabase:
     if _db.client is None:
         raise RuntimeError("Conexão com o MongoDB não inicializada.")
     return _db.client[settings.mongo_db_name]
+
+
+async def _criar_indices() -> None:
+    db = get_database()
+    await db["usuarios"].create_index("email", unique=True)
+    await db["usuarios"].create_index("telefone")
+    await db["usuarios"].create_index("perfil")
+    await db["agendamentos"].create_index("profissional_id")
+    await db["agendamentos"].create_index("cliente_id")
+    await db["agendamentos"].create_index("data_hora_inicio")
+    await db["agendamentos"].create_index("status")
+    await db["assinaturas"].create_index("cliente_id")
+    await db["assinaturas"].create_index("plano_id")
+    await db["assinaturas"].create_index("status")
+    await db["servicos"].create_index("nome")
+    await db["planos"].create_index("nome")

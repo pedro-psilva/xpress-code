@@ -268,14 +268,10 @@ class WhatsAppService:
         return await self._usuario_service.criar(payload)
 
     async def _servicos_ativos(self) -> list[dict[str, Any]]:
-        return [s for s in await self._servico_service.listar() if s.get("ativo")]
+        return await self._servico_service.listar({"ativo": True})
 
     async def _profissionais(self) -> list[dict[str, Any]]:
-        return [
-            u
-            for u in await self._usuario_service.listar()
-            if u.get("perfil") == Perfil.profissional.value
-        ]
+        return await self._usuario_service.listar({"perfil": Perfil.profissional.value})
 
 
 def _extrair_texto(msg: dict[str, Any]) -> str | None:

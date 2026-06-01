@@ -77,6 +77,7 @@ class Settings(BaseSettings):
 
     infinitepay_handle: str = ""
     infinitepay_redirect_url: str = ""
+    infinitepay_webhook_token: str = ""
     public_api_url: str = "http://localhost:8000/api/v1"
 
 

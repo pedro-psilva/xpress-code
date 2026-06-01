@@ -10,7 +10,11 @@ class InfinitePayClient:
     def __init__(self) -> None:
         self.handle = settings.infinitepay_handle
         self.redirect_url = settings.infinitepay_redirect_url
-        self.webhook_url = f"{settings.public_api_url.rstrip('/')}/webhooks/infinitepay"
+        base_webhook = f"{settings.public_api_url.rstrip('/')}/webhooks/infinitepay"
+        if settings.infinitepay_webhook_token:
+            self.webhook_url = f"{base_webhook}?token={settings.infinitepay_webhook_token}"
+        else:
+            self.webhook_url = base_webhook
 
     @property
     def configurado(self) -> bool:

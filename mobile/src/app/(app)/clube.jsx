@@ -287,7 +287,7 @@ export default function ClubeScreen() {
       ),
     },
     {
-      key: 'status',
+      key: 'mudar_status',
       header: '',
       flex: 0.5,
       render: (a) => (
