@@ -4,13 +4,14 @@ Uso (com a venv ativa e o Mongo no ar):
     python -m scripts.seed
 """
 import asyncio
+import os
+import secrets
 from datetime import datetime, timezone
 
 from app.core.database import close_mongo_connection, connect_to_mongo, get_database
 from app.core.security import hash_senha
 
-ADMIN_EMAIL = "admin@xpress.com"
-ADMIN_SENHA = "admin123"
+ADMIN_EMAIL = os.getenv("SEED_ADMIN_EMAIL", "admin@xpress.com")
 
 SERVICOS_BASE = [
     {"nome": "Corte", "preco": 40.00, "duracao_minutos": 30, "ativo": True},
@@ -76,17 +77,23 @@ async def seed_admin(db) -> None:
     if await db["usuarios"].find_one({"email": ADMIN_EMAIL}):
         print(f"Admin ja existe: {ADMIN_EMAIL}")
         return
+    senha_configurada = os.getenv("SEED_ADMIN_SENHA")
+    senha = senha_configurada or secrets.token_urlsafe(12)
     await db["usuarios"].insert_one(
         {
             "nome": "Administrador",
             "email": ADMIN_EMAIL,
             "telefone": None,
             "perfil": "admin",
-            "senha_hash": hash_senha(ADMIN_SENHA),
+            "senha_hash": hash_senha(senha),
             "criado_em": datetime.now(timezone.utc),
         }
     )
-    print(f"Admin criado: {ADMIN_EMAIL} / senha: {ADMIN_SENHA}")
+    if senha_configurada:
+        print(f"Admin criado: {ADMIN_EMAIL} (senha vinda de SEED_ADMIN_SENHA)")
+    else:
+        print(f"Admin criado: {ADMIN_EMAIL} / senha gerada: {senha}")
+        print("[!] Guarde esta senha e troque-a apos o primeiro login.")
 
 
 async def seed_servicos(db) -> None:

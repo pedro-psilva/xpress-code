@@ -8,10 +8,14 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 
 from app.core.config import settings
 from app.core.database import close_mongo_connection, connect_to_mongo
 from app.core.exceptions import DomainError
+from app.core.middleware import BodySizeLimitMiddleware, SecurityHeadersMiddleware
+from app.core.rate_limit import limiter
 from app.routers import (
     agendamentos,
     assinaturas,
@@ -44,6 +48,11 @@ app = FastAPI(
     openapi_url=None if _PROD else "/openapi.json",
 )
 
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(BodySizeLimitMiddleware, max_bytes=1_048_576)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
