@@ -7,6 +7,7 @@ from app.models.agendamento import AgendamentoCreate
 from app.models.jornada import BlocoJornada
 from app.services.agendamento_service import AgendamentoService
 from app.services.jornada_service import JornadaService
+from app.services.notificacao_service import NotificacaoService
 
 
 async def _montar(make_repo):
@@ -17,7 +18,9 @@ async def _montar(make_repo):
     cliente = await us.create({"nome": "Cli", "email": "c@e.com", "perfil": "cliente"})
     prof = await us.create({"nome": "Prof", "email": "p@e.com", "perfil": "profissional"})
     jornada_service = JornadaService(jr, us)
-    service = AgendamentoService(ag, sv, us, jornada_service)
+    service = AgendamentoService(
+        ag, sv, us, jornada_service, NotificacaoService(make_repo())
+    )
     return service, servico, cliente, prof, jornada_service
 
 
@@ -118,6 +121,26 @@ async def test_agendamento_fora_da_jornada_levanta_validation(make_repo):
         )
 
 
+async def test_criar_agendamento_gera_notificacao_de_confirmacao(make_repo):
+    ag, sv, us, jr = make_repo(), make_repo(), make_repo(), make_repo()
+    notif_repo = make_repo()
+    servico = await sv.create(
+        {"nome": "Corte", "preco": 40.0, "duracao_minutos": 30, "ativo": True}
+    )
+    cliente = await us.create({"nome": "Cli", "email": "c@e.com", "perfil": "cliente"})
+    prof = await us.create({"nome": "Prof", "email": "p@e.com", "perfil": "profissional"})
+    service = AgendamentoService(
+        ag, sv, us, JornadaService(jr, us), NotificacaoService(notif_repo)
+    )
+    criado = await service.criar(
+        _payload(cliente, prof, servico, datetime(2026, 6, 1, 14, 0))
+    )
+    notificacoes = await notif_repo.list({"usuario_id": cliente["id"]})
+    assert len(notificacoes) == 1
+    assert notificacoes[0]["tipo"] == "confirmacao"
+    assert notificacoes[0]["agendamento_id"] == criado["id"]
+
+
 async def test_profissional_nao_vinculado_ao_servico_levanta_validation(make_repo):
     ag, sv, us, jr = make_repo(), make_repo(), make_repo(), make_repo()
     outro = await us.create({"nome": "Outro", "email": "o@e.com", "perfil": "profissional"})
@@ -132,6 +155,8 @@ async def test_profissional_nao_vinculado_ao_servico_levanta_validation(make_rep
             "profissionais_ids": [outro["id"]],
         }
     )
-    service = AgendamentoService(ag, sv, us, JornadaService(jr, us))
+    service = AgendamentoService(
+        ag, sv, us, JornadaService(jr, us), NotificacaoService(make_repo())
+    )
     with pytest.raises(ValidationError):
         await service.criar(_payload(cliente, prof, servico, datetime(2026, 6, 1, 14, 0)))

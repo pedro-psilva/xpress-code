@@ -10,8 +10,10 @@ from typing import Any
 from app.core.exceptions import ConflictError, NotFoundError, ValidationError
 from app.core.tempo import data_local, limites_do_dia, para_utc
 from app.models.agendamento import AgendamentoCreate, StatusAgendamento
+from app.models.notificacao import TipoNotificacao
 from app.repositories.base import AbstractRepository
 from app.services.jornada_service import JornadaService
+from app.services.notificacao_service import NotificacaoService
 
 
 class AgendamentoService:
@@ -21,11 +23,13 @@ class AgendamentoService:
         servico_repo: AbstractRepository,
         usuario_repo: AbstractRepository,
         jornada_service: JornadaService,
+        notificacao_service: NotificacaoService,
     ) -> None:
         self._repo = agendamento_repo
         self._servico_repo = servico_repo
         self._usuario_repo = usuario_repo
         self._jornada_service = jornada_service
+        self._notificacao_service = notificacao_service
 
     async def listar(
         self,
@@ -80,7 +84,15 @@ class AgendamentoService:
             "data_hora_fim": fim,
             "status": StatusAgendamento.agendado.value,
         }
-        return await self._repo.create(doc)
+        criado = await self._repo.create(doc)
+        await self._notificacao_service.criar(
+            usuario_id=data.cliente_id,
+            tipo=TipoNotificacao.confirmacao,
+            titulo="Agendamento confirmado",
+            mensagem="Seu agendamento foi confirmado.",
+            agendamento_id=criado["id"],
+        )
+        return criado
 
     async def _validar_jornada(
         self, profissional_id: str, inicio: datetime, fim: datetime
@@ -116,10 +128,17 @@ class AgendamentoService:
 
     async def cancelar(self, agendamento_id: str) -> None:
         """Cancelamento lógico: status -> cancelado (preserva o histórico)."""
-        await self._mudar_status(
+        atualizado = await self._mudar_status(
             agendamento_id,
             StatusAgendamento.cancelado,
             {StatusAgendamento.agendado},
+        )
+        await self._notificacao_service.criar(
+            usuario_id=atualizado["cliente_id"],
+            tipo=TipoNotificacao.cancelamento,
+            titulo="Agendamento cancelado",
+            mensagem="Seu agendamento foi cancelado.",
+            agendamento_id=agendamento_id,
         )
 
     async def concluir(self, agendamento_id: str) -> dict[str, Any]:

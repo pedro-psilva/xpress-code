@@ -23,6 +23,7 @@ from app.routers import (
     disponibilidade,
     health,
     jornadas,
+    notificacoes,
     planos,
     servicos,
     usuarios,
@@ -81,6 +82,7 @@ app.include_router(usuarios.router, prefix=settings.api_v1_prefix)
 app.include_router(agendamentos.router, prefix=settings.api_v1_prefix)
 app.include_router(jornadas.router, prefix=settings.api_v1_prefix)
 app.include_router(disponibilidade.router, prefix=settings.api_v1_prefix)
+app.include_router(notificacoes.router, prefix=settings.api_v1_prefix)
 app.include_router(assinaturas.router, prefix=settings.api_v1_prefix)
 app.include_router(whatsapp.router, prefix=settings.api_v1_prefix)
 app.include_router(webhooks.router, prefix=settings.api_v1_prefix)
