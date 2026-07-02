@@ -24,6 +24,8 @@ class Settings(BaseSettings):
     # API
     api_v1_prefix: str = "/api/v1"
 
+    business_timezone: str = "America/Sao_Paulo"
+
     # CORS — origens permitidas para clientes navegador (SPA web e Expo Web).
     # Apps React Native NATIVOS (iOS/Android) não enviam header Origin e não
     # sofrem CORS — só precisam alcançar a API pela rede (uvicorn --host 0.0.0.0).

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
@@ -28,7 +28,8 @@ async def test_criar_agendamento_calcula_termino(make_repo):
         )
     )
     assert criado["status"] == "agendado"
-    assert criado["data_hora_fim"] == datetime(2026, 6, 1, 14, 30)
+    assert criado["data_hora_inicio"].tzinfo == timezone.utc
+    assert criado["data_hora_fim"] - criado["data_hora_inicio"] == timedelta(minutes=30)
 
 
 async def test_cancelar_muda_status(make_repo):

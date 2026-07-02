@@ -8,6 +8,7 @@ from datetime import date, datetime, timedelta
 from typing import Any
 
 from app.core.exceptions import ConflictError, NotFoundError, ValidationError
+from app.core.tempo import limites_do_dia, para_utc
 from app.models.agendamento import AgendamentoCreate, StatusAgendamento
 from app.repositories.base import AbstractRepository
 
@@ -35,11 +36,8 @@ class AgendamentoService:
         if profissional_id:
             filters["profissional_id"] = profissional_id
         if data:
-            inicio_dia = datetime(data.year, data.month, data.day)
-            filters["data_hora_inicio"] = {
-                "$gte": inicio_dia,
-                "$lt": inicio_dia + timedelta(days=1),
-            }
+            inicio_dia, fim_dia = limites_do_dia(data)
+            filters["data_hora_inicio"] = {"$gte": inicio_dia, "$lte": fim_dia}
         return await self._repo.list(filters)
 
     async def buscar(self, agendamento_id: str) -> dict[str, Any]:
@@ -57,7 +55,7 @@ class AgendamentoService:
         if await self._usuario_repo.get_by_id(data.profissional_id) is None:
             raise ValidationError("Profissional informado não existe.")
 
-        inicio = data.data_hora_inicio
+        inicio = para_utc(data.data_hora_inicio)
         fim = inicio + timedelta(minutes=int(servico["duracao_minutos"]))
 
         await self._validar_conflito(data.profissional_id, inicio, fim)

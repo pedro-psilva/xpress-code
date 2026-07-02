@@ -4,6 +4,8 @@ Cliente assíncrono (Motor) gerenciado pelo ciclo de vida da aplicação.
 A instância do banco é exposta via `get_database`, que será injetada nas
 rotas/repositórios pelo mecanismo de dependências do FastAPI (Depends) — DIP.
 """
+from datetime import timezone
+
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
 from app.core.config import settings
@@ -17,7 +19,9 @@ _db = _Database()
 
 
 async def connect_to_mongo() -> None:
-    _db.client = AsyncIOMotorClient(settings.mongo_uri)
+    _db.client = AsyncIOMotorClient(
+        settings.mongo_uri, tz_aware=True, tzinfo=timezone.utc
+    )
     await _criar_indices()
 
 
