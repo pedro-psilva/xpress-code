@@ -33,9 +33,9 @@ Status: ⬜ pendente · 🟨 em andamento · ✅ concluído
 | # | Item | Status |
 |---|------|--------|
 | P2-12 | Reagendamento de agendamentos | ✅ |
-| P2-13 | Estratégia de backup do MongoDB | ⬜ |
-| P2-14 | Health check do deploy usar `/health/db` | ⬜ |
-| P2-15 | Booking self-service do cliente (web) | ⬜ |
+| P2-13 | Estratégia de backup do MongoDB (documentada) | ✅ |
+| P2-14 | Health check (`/health` liveness, `/health/db` 503) | ✅ |
+| P2-15 | Booking self-service do cliente (web) | ⬜ (frontend) |
 | P2-16 | Relatórios (faturamento, taxa de no-show) | ✅ |
 
 ---
@@ -52,6 +52,19 @@ Status: ⬜ pendente · 🟨 em andamento · ✅ concluído
 ## Log de evoluções
 
 Ordem cronológica inversa (mais recente no topo).
+
+### 2026-07-01 — P2 de backend (reagendamento, relatórios, operação)
+
+- **P2-12 (reagendamento):** `POST /agendamentos/{id}/reagendar`.
+- **P2-16 (relatórios):** `GET /relatorios/resumo` (faturamento + no-show).
+- **P2-14 (health):** `/health` para liveness do Fly; `/health/db` devolve 503
+  quando o Mongo cai (para monitores). Decisão: não gatilhar liveness no banco.
+- **P2-13 (backup):** documentado no README (Atlas automático ou mongodump).
+- **P2-15 (booking self-service web):** pendente — é trabalho de **frontend** no
+  app Expo (página pública de auto-agendamento). O backend já dá suporte:
+  `/auth/register`, `/disponibilidade` e `POST /agendamentos`. Requer decisão de
+  produto (fluxo público/guest) antes de implementar.
+- **Testes:** 58 passando.
 
 ### 2026-07-01 — Observabilidade + auth completa (P1 concluído)
 

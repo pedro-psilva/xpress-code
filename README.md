@@ -264,3 +264,23 @@ URL HTTPS pública (a InfinitePay vai bater em
 Mensagens recebidas são processadas por um bot conversacional que cadastra o
 cliente pelo telefone (se for novo) e guia o agendamento passo a passo
 (serviço → profissional → data → hora).
+
+## Operação (health e backup)
+
+- **Liveness:** o Fly monitora `GET /health` (sempre 200 se o processo está no
+  ar). Não gatilhamos o liveness no banco de propósito — uma instabilidade
+  momentânea do Mongo não deve derrubar/reiniciar a máquina em cascata.
+- **Readiness/monitoração:** `GET /health/db` faz `ping` no Mongo e devolve
+  **503** se o banco estiver indisponível — use-o em monitores externos.
+
+### Backup do MongoDB
+
+- **Produção (recomendado):** MongoDB Atlas com *backups automáticos* (snapshots
+  contínuos + retenção configurável). É a opção de menor esforço e mais segura.
+- **Alternativa (self-hosted):** `mongodump` agendado (cron diário) enviando o
+  dump para armazenamento externo. Restauração com `mongorestore`:
+
+  ```bash
+  mongodump  --uri "$MONGO_URI" --db "$MONGO_DB_NAME" --archive=backup-$(date +%F).gz --gzip
+  mongorestore --uri "$MONGO_URI" --gzip --archive=backup-2026-07-01.gz
+  ```
