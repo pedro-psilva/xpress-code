@@ -57,3 +57,4 @@ async def _criar_indices() -> None:
     await db["assinaturas"].create_index("status")
     await db["servicos"].create_index("nome")
     await db["planos"].create_index("nome")
+    await db["jornadas"].create_index("profissional_id", unique=True)

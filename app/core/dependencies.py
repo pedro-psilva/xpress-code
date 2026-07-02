@@ -13,6 +13,7 @@ from app.services.assinatura_service import AssinaturaService
 from app.services.auth_service import AuthService
 from app.services.brevo_client import BrevoClient
 from app.services.infinitepay_client import InfinitePayClient
+from app.services.jornada_service import JornadaService
 from app.services.notification_service import NotificationService
 from app.services.plano_service import PlanoService
 from app.services.servico_service import ServicoService
@@ -45,6 +46,14 @@ def get_usuario_service(
     return UsuarioService(MongoRepository(db["usuarios"]))
 
 
+def get_jornada_service(
+    db: AsyncIOMotorDatabase = Depends(get_database),
+) -> JornadaService:
+    return JornadaService(
+        MongoRepository(db["jornadas"]), MongoRepository(db["usuarios"])
+    )
+
+
 def get_agendamento_service(
     db: AsyncIOMotorDatabase = Depends(get_database),
 ) -> AgendamentoService:
@@ -52,6 +61,7 @@ def get_agendamento_service(
         agendamento_repo=MongoRepository(db["agendamentos"]),
         servico_repo=MongoRepository(db["servicos"]),
         usuario_repo=MongoRepository(db["usuarios"]),
+        jornada_service=get_jornada_service(db),
     )
 
 

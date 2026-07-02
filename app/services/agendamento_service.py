@@ -8,9 +8,10 @@ from datetime import date, datetime, timedelta
 from typing import Any
 
 from app.core.exceptions import ConflictError, NotFoundError, ValidationError
-from app.core.tempo import limites_do_dia, para_utc
+from app.core.tempo import data_local, limites_do_dia, para_utc
 from app.models.agendamento import AgendamentoCreate, StatusAgendamento
 from app.repositories.base import AbstractRepository
+from app.services.jornada_service import JornadaService
 
 
 class AgendamentoService:
@@ -19,10 +20,12 @@ class AgendamentoService:
         agendamento_repo: AbstractRepository,
         servico_repo: AbstractRepository,
         usuario_repo: AbstractRepository,
+        jornada_service: JornadaService,
     ) -> None:
         self._repo = agendamento_repo
         self._servico_repo = servico_repo
         self._usuario_repo = usuario_repo
+        self._jornada_service = jornada_service
 
     async def listar(
         self,
@@ -58,6 +61,7 @@ class AgendamentoService:
         inicio = para_utc(data.data_hora_inicio)
         fim = inicio + timedelta(minutes=int(servico["duracao_minutos"]))
 
+        await self._validar_jornada(data.profissional_id, inicio, fim)
         await self._validar_conflito(data.profissional_id, inicio, fim)
 
         doc = {
@@ -69,6 +73,20 @@ class AgendamentoService:
             "status": StatusAgendamento.agendado.value,
         }
         return await self._repo.create(doc)
+
+    async def _validar_jornada(
+        self, profissional_id: str, inicio: datetime, fim: datetime
+    ) -> None:
+        intervalos = await self._jornada_service.intervalos_do_dia(
+            profissional_id, data_local(inicio)
+        )
+        if not intervalos:
+            return
+        dentro = any(ini <= inicio and fim <= f for ini, f in intervalos)
+        if not dentro:
+            raise ValidationError(
+                "Horário fora da jornada de trabalho do profissional."
+            )
 
     async def _validar_conflito(
         self, profissional_id: str, inicio: datetime, fim: datetime

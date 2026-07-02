@@ -36,3 +36,7 @@ def limites_do_dia(dia: date) -> tuple[datetime, datetime]:
 
 def dia_semana_local(momento: datetime) -> int:
     return momento.astimezone(business_tz()).weekday()
+
+
+def data_local(momento: datetime) -> date:
+    return momento.astimezone(business_tz()).date()
