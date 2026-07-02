@@ -9,7 +9,9 @@ from typing import Any
 from bson import ObjectId
 from bson.errors import InvalidId
 from motor.motor_asyncio import AsyncIOMotorCollection
+from pymongo.errors import DuplicateKeyError
 
+from app.core.exceptions import ConflictError
 from app.repositories.base import AbstractRepository
 
 
@@ -33,7 +35,12 @@ class MongoRepository(AbstractRepository):
         self._collection = collection
 
     async def create(self, data: dict[str, Any]) -> dict[str, Any]:
-        result = await self._collection.insert_one(data)
+        try:
+            result = await self._collection.insert_one(data)
+        except DuplicateKeyError as exc:
+            raise ConflictError(
+                "O registro conflita com outro já existente."
+            ) from exc
         doc = await self._collection.find_one({"_id": result.inserted_id})
         return _serialize(doc)  # type: ignore[return-value]
 

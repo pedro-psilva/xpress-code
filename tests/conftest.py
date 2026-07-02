@@ -5,6 +5,10 @@ serviços dependem da abstração (DIP), conseguimos testá-los sem MongoDB —
 e o fato de o fake substituir o repositório real sem quebrar nada evidencia
 o LSP.
 """
+import os
+
+os.environ.setdefault("JWT_SECRET", "test-secret-not-for-production")
+
 from typing import Any
 
 import pytest

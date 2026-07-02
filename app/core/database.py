@@ -42,6 +42,12 @@ async def _criar_indices() -> None:
     await db["agendamentos"].create_index("cliente_id")
     await db["agendamentos"].create_index("data_hora_inicio")
     await db["agendamentos"].create_index("status")
+    await db["agendamentos"].create_index(
+        [("profissional_id", 1), ("data_hora_inicio", 1)],
+        unique=True,
+        partialFilterExpression={"status": "agendado"},
+        name="ux_agendamento_profissional_inicio_ativo",
+    )
     await db["assinaturas"].create_index("cliente_id")
     await db["assinaturas"].create_index("plano_id")
     await db["assinaturas"].create_index("status")
