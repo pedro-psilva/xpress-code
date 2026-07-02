@@ -36,7 +36,7 @@ Status: ⬜ pendente · 🟨 em andamento · ✅ concluído
 | P2-13 | Estratégia de backup do MongoDB | ⬜ |
 | P2-14 | Health check do deploy usar `/health/db` | ⬜ |
 | P2-15 | Booking self-service do cliente (web) | ⬜ |
-| P2-16 | Relatórios (faturamento, taxa de no-show) | ⬜ |
+| P2-16 | Relatórios (faturamento, taxa de no-show) | ✅ |
 
 ---
 

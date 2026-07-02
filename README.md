@@ -164,6 +164,14 @@ Fly, GitHub Actions schedule ou serviço de cron) que envia o header
 `X-Cron-Token` igual a `CRON_TOKEN`. Cada lembrete dispara notificação in-app +
 e-mail (Brevo) + WhatsApp, uma única vez por agendamento.
 
+### Relatórios
+| Método | Rota | Acesso | Descrição |
+|--------|------|--------|-----------|
+| GET    | `/relatorios/resumo` | admin | Faturamento e taxa de no-show no período (`inicio`, `fim`) |
+
+Faturamento soma o preço dos atendimentos concluídos; a taxa de no-show é
+`no_shows / (concluídos + no_shows)` no período.
+
 ## Testes
 
 Testes unitários da camada de serviço (pytest), sem depender do MongoDB:

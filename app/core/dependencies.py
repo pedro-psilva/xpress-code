@@ -18,6 +18,7 @@ from app.services.infinitepay_client import InfinitePayClient
 from app.services.jornada_service import JornadaService
 from app.services.lembrete_service import LembreteService
 from app.services.notificacao_service import NotificacaoService
+from app.services.relatorio_service import RelatorioService
 from app.services.notification_service import NotificationService
 from app.services.plano_service import PlanoService
 from app.services.servico_service import ServicoService
@@ -99,6 +100,14 @@ def get_whatsapp_service(
         usuario_service=get_usuario_service(db),
         servico_service=get_servico_service(db),
         agendamento_service=get_agendamento_service(db),
+    )
+
+
+def get_relatorio_service(
+    db: AsyncIOMotorDatabase = Depends(get_database),
+) -> RelatorioService:
+    return RelatorioService(
+        MongoRepository(db["agendamentos"]), MongoRepository(db["servicos"])
     )
 
 
