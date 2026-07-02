@@ -27,6 +27,7 @@ Status: ⬜ pendente · 🟨 em andamento · ✅ concluído
 | P1-10 | CI (GitHub Actions: pytest + lint) | ✅ |
 | P1-11 | Auth completa (reset de senha, refresh token, seed seguro) | ✅ |
 | P1-17 | Notificações in-app (central de notificações) | ✅ |
+| P1-18 | Bot WhatsApp com IA (Gemini) + CRUD com guard rails | ✅ |
 
 ## P2 — Polimento / evolução
 
@@ -52,6 +53,22 @@ Status: ⬜ pendente · 🟨 em andamento · ✅ concluído
 ## Log de evoluções
 
 Ordem cronológica inversa (mais recente no topo).
+
+### 2026-07-01 — Bot WhatsApp com IA (Gemini) + guard rails
+
+- **P1-18:** agente Gemini (function-calling) no WhatsApp que consulta a agenda
+  e faz CRUD de agendamentos do cliente. Camadas:
+  - `AgendaTools` — ferramentas vinculadas ao cliente do telefone; posse
+    verificada em cancelar/reagendar (IDOR bloqueado).
+  - `WhatsAppAgent` — loop provider-agnóstico com whitelist de ferramentas,
+    teto de iterações e erros de domínio tratados.
+  - `GeminiClient` — adaptador google-genai (sem chave → fallback FSM).
+  - `WhatsAppService` — rate limit por telefone, histórico com TTL, input cap.
+- **Guard rails:** identidade fixada no servidor, mutações via serviços de
+  domínio, sem execução de código arbitrário pela IA.
+- **Pendências:** `GeminiClient` (adaptador da API) não tem teste de rede — a
+  lógica de agente/ferramentas/guard rails é 100% testada com fakes.
+- **Testes:** 72 passando.
 
 ### 2026-07-01 — P2 de backend (reagendamento, relatórios, operação)
 

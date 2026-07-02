@@ -265,6 +265,29 @@ Mensagens recebidas são processadas por um bot conversacional que cadastra o
 cliente pelo telefone (se for novo) e guia o agendamento passo a passo
 (serviço → profissional → data → hora).
 
+### Bot com IA (Google Gemini)
+
+Com `GEMINI_API_KEY` configurada, o bot passa a ser conduzido por um agente
+Gemini (function-calling) que consulta a agenda e faz o CRUD de agendamentos do
+cliente em linguagem natural. Sem a chave, o bot usa o fluxo determinístico
+acima (fallback).
+
+**Guard rails de segurança:**
+- A identidade do cliente vem do número de WhatsApp (resolvida no servidor);
+  a IA nunca escolhe de quem é a ação — bloqueia acesso a dados de terceiros.
+- Cancelar/remarcar verificam posse do agendamento (bloqueia IDOR mesmo sob
+  prompt injection).
+- Whitelist de ferramentas, teto de iterações por mensagem, limite de tamanho
+  da mensagem e rate limiting por telefone (`WHATSAPP_MSG_LIMITE_MIN`/min).
+- Todas as mutações passam pelos serviços de domínio (jornada, conflito,
+  double-booking, vínculo serviço↔profissional).
+
+| Variável                  | Descrição                                    |
+|---------------------------|----------------------------------------------|
+| `GEMINI_API_KEY`          | Chave da API do Google Gemini (vazio = bot determinístico) |
+| `GEMINI_MODEL`            | Modelo Gemini (padrão `gemini-2.0-flash`)    |
+| `WHATSAPP_MSG_LIMITE_MIN` | Máx. de mensagens por telefone por minuto    |
+
 ## Operação (health e backup)
 
 - **Liveness:** o Fly monitora `GET /health` (sempre 200 se o processo está no

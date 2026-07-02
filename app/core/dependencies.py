@@ -11,6 +11,7 @@ from app.core.database import get_database
 from app.repositories.mongo_repository import MongoRepository
 from app.services.agendamento_service import AgendamentoService
 from app.services.disponibilidade_service import DisponibilidadeService
+from app.services.gemini_client import GeminiClient
 from app.services.assinatura_service import AssinaturaService
 from app.services.auth_service import AuthService
 from app.services.brevo_client import BrevoClient
@@ -100,6 +101,8 @@ def get_whatsapp_service(
         usuario_service=get_usuario_service(db),
         servico_service=get_servico_service(db),
         agendamento_service=get_agendamento_service(db),
+        disponibilidade_service=get_disponibilidade_service(db),
+        gemini_client=GeminiClient(),
     )
 
 

@@ -5,13 +5,18 @@ from typing import Any
 
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
+from app.core.config import settings
 from app.core.exceptions import DomainError
 from app.models.agendamento import AgendamentoCreate
 from app.models.usuario import Perfil, UsuarioCreate
 from app.models.whatsapp import IntegracaoStatus
+from app.services.agenda_tools import AgendaTools
 from app.services.agendamento_service import AgendamentoService
+from app.services.disponibilidade_service import DisponibilidadeService
+from app.services.gemini_client import GeminiClient
 from app.services.servico_service import ServicoService
 from app.services.usuario_service import UsuarioService
+from app.services.whatsapp_agent import WhatsAppAgent
 from app.services.whatsapp_client import WhatsAppClient
 
 CONVERSA_TTL = timedelta(minutes=15)
@@ -27,12 +32,16 @@ class WhatsAppService:
         usuario_service: UsuarioService,
         servico_service: ServicoService,
         agendamento_service: AgendamentoService,
+        disponibilidade_service: DisponibilidadeService,
+        gemini_client: GeminiClient,
     ) -> None:
         self._db = db
         self._client = client
         self._usuario_service = usuario_service
         self._servico_service = servico_service
         self._agendamento_service = agendamento_service
+        self._disponibilidade_service = disponibilidade_service
+        self._gemini = gemini_client
         self._conversas = db["conversas_whatsapp"]
         self._usuarios = db["usuarios"]
 
@@ -72,6 +81,81 @@ class WhatsAppService:
     # ---------- Bot ----------
 
     async def _processar_mensagem(self, telefone: str, texto: str) -> str:
+        cliente = await self._achar_cliente(telefone)
+        if cliente is not None and self._gemini.configurado:
+            return await self._processar_com_ia(telefone, texto, cliente)
+        return await self._processar_fsm(telefone, texto)
+
+    async def _processar_com_ia(
+        self, telefone: str, texto: str, cliente: dict[str, Any]
+    ) -> str:
+        if not await self._dentro_do_limite(telefone):
+            return (
+                "Recebi muitas mensagens em pouco tempo. "
+                "Aguarde um instante e tente de novo. 🙏"
+            )
+        pergunta = texto.strip()[:1000]
+        historico = await self._carregar_historico(telefone)
+        tools = AgendaTools(
+            cliente,
+            self._servico_service,
+            self._usuario_service,
+            self._agendamento_service,
+            self._disponibilidade_service,
+        )
+        agente = WhatsAppAgent(self._gemini, tools)
+        try:
+            resposta = await agente.responder(historico, pergunta)
+        except DomainError as err:
+            resposta = f"Não consegui concluir: {err.detail}"
+        await self._salvar_historico(telefone, historico, pergunta, resposta)
+        return resposta
+
+    async def _dentro_do_limite(self, telefone: str) -> bool:
+        agora = datetime.now(timezone.utc)
+        conv = await self._conversas.find_one({"telefone": telefone}) or {}
+        inicio = conv.get("janela_inicio")
+        count = conv.get("janela_count", 0)
+        if inicio is None or agora - inicio > timedelta(minutes=1):
+            inicio, count = agora, 0
+        count += 1
+        await self._conversas.update_one(
+            {"telefone": telefone},
+            {
+                "$set": {
+                    "janela_inicio": inicio,
+                    "janela_count": count,
+                    "expira_em": agora + CONVERSA_TTL,
+                }
+            },
+            upsert=True,
+        )
+        return count <= settings.whatsapp_msg_limite_min
+
+    async def _carregar_historico(self, telefone: str) -> list[dict[str, Any]]:
+        conv = await self._carregar_conversa(telefone)
+        return (conv or {}).get("historico", [])
+
+    async def _salvar_historico(
+        self, telefone: str, historico: list[dict[str, Any]], pergunta: str, resposta: str
+    ) -> None:
+        novo = [
+            *historico,
+            {"role": "user", "content": pergunta},
+            {"role": "assistant", "content": resposta},
+        ][-20:]
+        await self._conversas.update_one(
+            {"telefone": telefone},
+            {
+                "$set": {
+                    "historico": novo,
+                    "expira_em": datetime.now(timezone.utc) + CONVERSA_TTL,
+                }
+            },
+            upsert=True,
+        )
+
+    async def _processar_fsm(self, telefone: str, texto: str) -> str:
         comando = texto.lower()
         if comando in {"cancelar", "menu", "voltar", "0"}:
             await self._reset_conversa(telefone)

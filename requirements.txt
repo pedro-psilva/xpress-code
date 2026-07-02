@@ -13,6 +13,9 @@ passlib[bcrypt]>=1.7
 python-jose[cryptography]>=3.3
 slowapi>=0.1.9
 
+# IA (bot do WhatsApp)
+google-genai>=0.3
+
 # Testes
 pytest>=8.0
 pytest-asyncio>=0.23

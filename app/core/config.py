@@ -29,6 +29,10 @@ class Settings(BaseSettings):
     cron_token: str = ""
     log_level: str = "INFO"
 
+    gemini_api_key: str = ""
+    gemini_model: str = "gemini-2.0-flash"
+    whatsapp_msg_limite_min: int = 15
+
     # CORS — origens permitidas para clientes navegador (SPA web e Expo Web).
     # Apps React Native NATIVOS (iOS/Android) não enviam header Origin e não
     # sofrem CORS — só precisam alcançar a API pela rede (uvicorn --host 0.0.0.0).
