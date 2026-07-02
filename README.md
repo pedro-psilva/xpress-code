@@ -88,6 +88,9 @@ Prefixo base: `/api/v1`.
 | PUT    | `/servicos/{id}`   | admin | Atualização integral |
 | DELETE | `/servicos/{id}`   | admin | Remoção lógica (`ativo=false`) |
 
+O serviço aceita `profissionais_ids` (lista): quando preenchida, só esses
+profissionais podem ser agendados para ele; vazia significa qualquer profissional.
+
 ### Usuários
 | Método | Rota | Acesso | Descrição |
 |--------|------|--------|-----------|
@@ -100,10 +103,35 @@ Prefixo base: `/api/v1`.
 ### Agendamentos
 | Método | Rota | Acesso | Descrição |
 |--------|------|--------|-----------|
-| GET    | `/agendamentos`        | autenticado | Lista (filtros: `cliente_id`, `profissional_id`, `data`) |
-| GET    | `/agendamentos/{id}`   | autenticado | Busca por ID |
-| POST   | `/agendamentos`        | autenticado | Cria (valida cliente/profissional/serviço; calcula término) |
-| DELETE | `/agendamentos/{id}`   | autenticado | Cancela (status → `cancelado`) |
+| GET    | `/agendamentos`             | autenticado | Lista (filtros: `cliente_id`, `profissional_id`, `data`) |
+| GET    | `/agendamentos/{id}`        | autenticado | Busca por ID |
+| POST   | `/agendamentos`             | autenticado | Cria (valida cliente/profissional/serviço, jornada e conflito; calcula término) |
+| DELETE | `/agendamentos/{id}`        | autenticado | Cancela (status → `cancelado`) |
+| POST   | `/agendamentos/{id}/concluir` | autenticado | Marca como concluído |
+| POST   | `/agendamentos/{id}/no-show`  | autenticado | Registra que o cliente não compareceu |
+
+Horários são interpretados no timezone do negócio (`BUSINESS_TIMEZONE`,
+padrão `America/Sao_Paulo`) e armazenados em UTC. O mesmo profissional não pode
+ter dois agendamentos ativos sobrepostos — garantido também por índice único no
+banco.
+
+### Jornada do profissional
+| Método | Rota | Acesso | Descrição |
+|--------|------|--------|-----------|
+| PUT    | `/profissionais/{id}/jornada` | admin | Define os blocos semanais de trabalho |
+| GET    | `/profissionais/{id}/jornada` | autenticado (staff) | Consulta a jornada |
+
+Cada bloco tem `dia_semana` (0=segunda … 6=domingo), `hora_inicio` e `hora_fim`
+(`HH:MM`). Agendamentos fora da jornada definida são rejeitados.
+
+### Disponibilidade
+| Método | Rota | Acesso | Descrição |
+|--------|------|--------|-----------|
+| GET    | `/disponibilidade` | autenticado (staff) | Lista horários livres (`profissional_id`, `servico_id`, `dia`) |
+
+Calcula os slots a partir da jornada menos os agendamentos ativos, respeitando a
+duração do serviço, o vínculo serviço↔profissional e o passo `SLOT_STEP_MINUTOS`
+(padrão 15). É o motor consumido pelo app e pela IA do WhatsApp.
 
 ## Testes
 

@@ -11,10 +11,10 @@ Status: ⬜ pendente · 🟨 em andamento · ✅ concluído
 | # | Item | Status |
 |---|------|--------|
 | P0-1 | Prevenir double-booking com garantia atômica (índice único parcial) | ✅ |
-| P0-2 | Modelar jornada de trabalho do profissional | ⬜ |
-| P0-3 | Endpoint de disponibilidade (horários livres) | ⬜ |
-| P0-4 | Vincular serviços a profissionais | ⬜ |
-| P0-5 | Tratamento de timezone nos agendamentos | ⬜ |
+| P0-2 | Modelar jornada de trabalho do profissional | ✅ |
+| P0-3 | Endpoint de disponibilidade (horários livres) | ✅ |
+| P0-4 | Vincular serviços a profissionais | ✅ |
+| P0-5 | Tratamento de timezone nos agendamentos | ✅ |
 
 ## P1 — Necessário para operar de verdade
 
@@ -51,6 +51,19 @@ Status: ⬜ pendente · 🟨 em andamento · ✅ concluído
 ## Log de evoluções
 
 Ordem cronológica inversa (mais recente no topo).
+
+### 2026-07-01 — Núcleo de agendamento (P0 completo)
+
+- **P0-5 (timezone):** cliente Mongo `tz_aware` (UTC); módulo `app/core/tempo`
+  converte entre o timezone do negócio e UTC; agendamentos normalizam entrada.
+- **P0-2 (jornada):** entidade Jornada (blocos semanais) + `PUT/GET
+  /profissionais/{id}/jornada`; agendamento rejeita horário fora da jornada.
+- **P0-4 (serviço↔profissional):** `Servico.profissionais_ids`; agendamento
+  rejeita profissional que não faz o serviço.
+- **P0-3 (disponibilidade):** `GET /disponibilidade` gera slots livres a partir
+  da jornada menos agendamentos, respeitando duração/vínculo/passo. Motor que
+  alimenta o app e a IA do WhatsApp.
+- **Testes:** 36 passando (unitários + E2E HTTP do endpoint de disponibilidade).
 
 ### 2026-07-01 — Limpeza + P0-1 + hardening de borda
 
