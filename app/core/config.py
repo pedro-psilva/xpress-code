@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     api_v1_prefix: str = "/api/v1"
 
     business_timezone: str = "America/Sao_Paulo"
+    slot_step_minutos: int = 15
 
     # CORS — origens permitidas para clientes navegador (SPA web e Expo Web).
     # Apps React Native NATIVOS (iOS/Android) não enviam header Origin e não

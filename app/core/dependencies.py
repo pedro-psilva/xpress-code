@@ -6,9 +6,11 @@ Montam os serviços injetando repositórios concretos. É aqui que a abstração
 from fastapi import Depends
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
+from app.core.config import settings
 from app.core.database import get_database
 from app.repositories.mongo_repository import MongoRepository
 from app.services.agendamento_service import AgendamentoService
+from app.services.disponibilidade_service import DisponibilidadeService
 from app.services.assinatura_service import AssinaturaService
 from app.services.auth_service import AuthService
 from app.services.brevo_client import BrevoClient
@@ -62,6 +64,17 @@ def get_agendamento_service(
         servico_repo=MongoRepository(db["servicos"]),
         usuario_repo=MongoRepository(db["usuarios"]),
         jornada_service=get_jornada_service(db),
+    )
+
+
+def get_disponibilidade_service(
+    db: AsyncIOMotorDatabase = Depends(get_database),
+) -> DisponibilidadeService:
+    return DisponibilidadeService(
+        servico_repo=MongoRepository(db["servicos"]),
+        agendamento_repo=MongoRepository(db["agendamentos"]),
+        jornada_service=get_jornada_service(db),
+        passo_minutos=settings.slot_step_minutos,
     )
 
 
