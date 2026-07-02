@@ -22,6 +22,8 @@ async def get_current_user(
         payload = decodificar_token(credentials.credentials)
     except JWTError:
         raise UnauthorizedError("Token inválido ou expirado.")
+    if payload.get("type") != "access":
+        raise UnauthorizedError("Token inválido ou expirado.")
     return {"id": payload.get("sub"), "perfil": payload.get("perfil")}
 
 

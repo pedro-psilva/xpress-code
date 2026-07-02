@@ -25,7 +25,7 @@ Status: ⬜ pendente · 🟨 em andamento · ✅ concluído
 | P1-8 | Paginação nas listagens | ✅ |
 | P1-9 | Observabilidade (logs + handler global de erro) | ✅ |
 | P1-10 | CI (GitHub Actions: pytest + lint) | ✅ |
-| P1-11 | Auth completa (reset de senha, refresh token, seed seguro) | ⬜ |
+| P1-11 | Auth completa (reset de senha, refresh token, seed seguro) | ✅ |
 | P1-17 | Notificações in-app (central de notificações) | ✅ |
 
 ## P2 — Polimento / evolução
@@ -52,6 +52,19 @@ Status: ⬜ pendente · 🟨 em andamento · ✅ concluído
 ## Log de evoluções
 
 Ordem cronológica inversa (mais recente no topo).
+
+### 2026-07-01 — Observabilidade + auth completa (P1 concluído)
+
+- **P1-9 (observabilidade):** logging por `LOG_LEVEL`, `RequestLogMiddleware` e
+  handler global de 500 que não vaza stack trace.
+- **P1-11 (auth):** refresh token (`POST /auth/refresh`), reset de senha por
+  e-mail (`esqueci-senha`/`redefinir-senha`, sem enumeração), tokens tipados
+  (access/refresh/reset) com `get_current_user` exigindo `access`. Seed seguro
+  já feito no P1-7.
+- **Pendências de hardening futuro:** refresh é stateless (sem revogação); token
+  de reset é válido até expirar (não é single-use). Aceitável por ora.
+- **Testes:** 52 passando (+ E2E HTTP do fluxo de auth e checagens de segurança).
+- **P1 100% concluído.**
 
 ### 2026-07-01 — Notificações in-app + lembretes
 

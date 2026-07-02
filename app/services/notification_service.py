@@ -48,6 +48,30 @@ class NotificationService:
 
         return {"email": email_enviado, "whatsapp": whatsapp_enviado}
 
+    async def enviar_reset_senha(self, cliente: dict, token: str) -> bool:
+        email = (cliente.get("email") or "").lower()
+        if not email or email.startswith("wa-"):
+            return False
+        assunto = "Redefinição de senha - Xpress Code"
+        texto = (
+            f"Ola, {cliente.get('nome', 'cliente')}!\n\n"
+            f"Use este codigo para redefinir sua senha: {token}\n"
+            "Se voce nao pediu isso, ignore este e-mail.\nXpress Code"
+        )
+        html = (
+            f"<p>Olá, <strong>{cliente.get('nome', 'cliente')}</strong>!</p>"
+            "<p>Use este código para redefinir sua senha:</p>"
+            f"<p><code>{token}</code></p>"
+            "<p>Se você não pediu isso, ignore este e-mail.<br>Xpress Code</p>"
+        )
+        return await self._brevo.enviar(
+            destinatario_email=email,
+            destinatario_nome=cliente.get("nome", ""),
+            assunto=assunto,
+            html=html,
+            texto=texto,
+        )
+
     async def enviar_lembrete(self, cliente: dict, quando: str) -> dict[str, bool]:
         assunto = "Lembrete do seu agendamento - Xpress Code"
         texto = (

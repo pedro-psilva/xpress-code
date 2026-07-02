@@ -29,7 +29,10 @@ from app.services.whatsapp_service import WhatsAppService
 def get_auth_service(
     db: AsyncIOMotorDatabase = Depends(get_database),
 ) -> AuthService:
-    return AuthService(MongoRepository(db["usuarios"]))
+    return AuthService(
+        MongoRepository(db["usuarios"]),
+        NotificationService(BrevoClient(), WhatsAppClient()),
+    )
 
 
 def get_servico_service(

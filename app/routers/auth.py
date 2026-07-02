@@ -3,7 +3,15 @@ from fastapi import APIRouter, Depends, Request, status
 
 from app.core.dependencies import get_auth_service, get_usuario_service
 from app.core.rate_limit import limiter
-from app.models.auth import LoginRequest, RegisterRequest, TokenResponse
+from app.models.auth import (
+    AccessTokenResponse,
+    EsqueciSenhaRequest,
+    LoginRequest,
+    RedefinirSenhaRequest,
+    RefreshRequest,
+    RegisterRequest,
+    TokenResponse,
+)
 from app.models.usuario import Perfil, UsuarioCreate, UsuarioOut
 from app.services.auth_service import AuthService
 from app.services.usuario_service import UsuarioService
@@ -44,5 +52,47 @@ async def login(
     payload: LoginRequest,
     service: AuthService = Depends(get_auth_service),
 ):
-    token, perfil = await service.autenticar(payload.email, payload.senha)
-    return TokenResponse(access_token=token, perfil=perfil)
+    access, refresh, perfil = await service.autenticar(payload.email, payload.senha)
+    return TokenResponse(access_token=access, refresh_token=refresh, perfil=perfil)
+
+
+@router.post(
+    "/refresh",
+    response_model=AccessTokenResponse,
+    summary="Renova o access token a partir do refresh token",
+)
+@limiter.limit("30/minute")
+async def refresh(
+    request: Request,
+    payload: RefreshRequest,
+    service: AuthService = Depends(get_auth_service),
+):
+    return AccessTokenResponse(access_token=await service.renovar(payload.refresh_token))
+
+
+@router.post(
+    "/esqueci-senha",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Solicita redefinição de senha (envia e-mail se a conta existir)",
+)
+@limiter.limit("5/minute")
+async def esqueci_senha(
+    request: Request,
+    payload: EsqueciSenhaRequest,
+    service: AuthService = Depends(get_auth_service),
+):
+    await service.solicitar_reset(payload.email)
+
+
+@router.post(
+    "/redefinir-senha",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Redefine a senha usando o token recebido por e-mail",
+)
+@limiter.limit("5/minute")
+async def redefinir_senha(
+    request: Request,
+    payload: RedefinirSenhaRequest,
+    service: AuthService = Depends(get_auth_service),
+):
+    await service.redefinir_senha(payload.token, payload.nova_senha)

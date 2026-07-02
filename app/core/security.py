@@ -19,11 +19,25 @@ def verificar_senha(senha: str, senha_hash: str) -> bool:
     return bcrypt.checkpw(senha.encode("utf-8"), senha_hash.encode("utf-8"))
 
 
-def criar_access_token(subject: str, perfil: str) -> str:
-    """Gera um JWT com o id do usuário (sub), o perfil e expiração."""
-    expira = datetime.now(timezone.utc) + timedelta(minutes=settings.jwt_expire_minutes)
-    payload = {"sub": subject, "perfil": perfil, "exp": expira}
+def _assinar(claims: dict, minutos: int) -> str:
+    expira = datetime.now(timezone.utc) + timedelta(minutes=minutos)
+    payload = {**claims, "exp": expira}
     return jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
+
+
+def criar_access_token(subject: str, perfil: str) -> str:
+    return _assinar(
+        {"sub": subject, "perfil": perfil, "type": "access"},
+        settings.jwt_expire_minutes,
+    )
+
+
+def criar_refresh_token(subject: str) -> str:
+    return _assinar({"sub": subject, "type": "refresh"}, settings.refresh_expire_minutes)
+
+
+def criar_reset_token(subject: str) -> str:
+    return _assinar({"sub": subject, "type": "reset"}, settings.reset_expire_minutes)
 
 
 def decodificar_token(token: str) -> dict:

@@ -80,7 +80,13 @@ As listagens de usuários e agendamentos aceitam paginação via `limite`
 | Método | Rota | Acesso | Descrição |
 |--------|------|--------|-----------|
 | POST   | `/auth/register` | 🔓 | Auto-registro (cria `cliente`) |
-| POST   | `/auth/login`    | 🔓 | Retorna o token JWT |
+| POST   | `/auth/login`    | 🔓 | Retorna `access_token` + `refresh_token` |
+| POST   | `/auth/refresh`  | 🔓 | Troca o `refresh_token` por um novo `access_token` |
+| POST   | `/auth/esqueci-senha` | 🔓 | Envia e-mail de redefinição (200 mesmo se o e-mail não existir) |
+| POST   | `/auth/redefinir-senha` | 🔓 | Redefine a senha com o token recebido |
+
+Os tokens são tipados (`access`/`refresh`/`reset`); um não é aceito no lugar do
+outro. Todos os endpoints de auth têm rate limiting.
 
 ### Serviços
 | Método | Rota | Acesso | Descrição |
