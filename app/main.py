@@ -14,8 +14,15 @@ from slowapi.errors import RateLimitExceeded
 from app.core.config import settings
 from app.core.database import close_mongo_connection, connect_to_mongo
 from app.core.exceptions import DomainError
-from app.core.middleware import BodySizeLimitMiddleware, SecurityHeadersMiddleware
+from app.core.logging import configure_logging, logger
+from app.core.middleware import (
+    BodySizeLimitMiddleware,
+    RequestLogMiddleware,
+    SecurityHeadersMiddleware,
+)
 from app.core.rate_limit import limiter
+
+configure_logging()
 from app.routers import (
     agendamentos,
     assinaturas,
@@ -55,6 +62,7 @@ app = FastAPI(
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+app.add_middleware(RequestLogMiddleware)
 app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(BodySizeLimitMiddleware, max_bytes=1_048_576)
 app.add_middleware(
@@ -72,6 +80,15 @@ async def domain_error_handler(request: Request, exc: DomainError) -> JSONRespon
     return JSONResponse(
         status_code=exc.status_code,
         content={"status": exc.status_code, "detail": exc.detail},
+    )
+
+
+@app.exception_handler(Exception)
+async def unhandled_error_handler(request: Request, exc: Exception) -> JSONResponse:
+    logger.exception("Erro não tratado em %s %s", request.method, request.url.path)
+    return JSONResponse(
+        status_code=500,
+        content={"status": 500, "detail": "Erro interno do servidor."},
     )
 
 

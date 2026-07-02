@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     business_timezone: str = "America/Sao_Paulo"
     slot_step_minutos: int = 15
     cron_token: str = ""
+    log_level: str = "INFO"
 
     # CORS — origens permitidas para clientes navegador (SPA web e Expo Web).
     # Apps React Native NATIVOS (iOS/Android) não enviam header Origin e não

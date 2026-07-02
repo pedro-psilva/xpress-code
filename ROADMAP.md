@@ -23,7 +23,7 @@ Status: ⬜ pendente · 🟨 em andamento · ✅ concluído
 | P1-6 | Lembretes automáticos (via cron externo) | ✅ |
 | P1-7 | Hardening: rate limiting + proteções de borda | ✅ |
 | P1-8 | Paginação nas listagens | ✅ |
-| P1-9 | Observabilidade (logs estruturados + error tracking) | ⬜ |
+| P1-9 | Observabilidade (logs + handler global de erro) | ✅ |
 | P1-10 | CI (GitHub Actions: pytest + lint) | ✅ |
 | P1-11 | Auth completa (reset de senha, refresh token, seed seguro) | ⬜ |
 | P1-17 | Notificações in-app (central de notificações) | ✅ |
