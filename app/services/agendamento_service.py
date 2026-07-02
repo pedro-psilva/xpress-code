@@ -32,6 +32,8 @@ class AgendamentoService:
         cliente_id: str | None = None,
         profissional_id: str | None = None,
         data: date | None = None,
+        skip: int = 0,
+        limit: int | None = None,
     ) -> list[dict[str, Any]]:
         filters: dict[str, Any] = {}
         if cliente_id:
@@ -41,7 +43,7 @@ class AgendamentoService:
         if data:
             inicio_dia, fim_dia = limites_do_dia(data)
             filters["data_hora_inicio"] = {"$gte": inicio_dia, "$lte": fim_dia}
-        return await self._repo.list(filters)
+        return await self._repo.list(filters, skip=skip, limit=limit)
 
     async def buscar(self, agendamento_id: str) -> dict[str, Any]:
         agendamento = await self._repo.get_by_id(agendamento_id)

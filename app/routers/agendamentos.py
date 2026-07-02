@@ -24,9 +24,13 @@ async def listar(
     cliente_id: str | None = Query(default=None),
     profissional_id: str | None = Query(default=None),
     data: date | None = Query(default=None, description="Filtra pelo dia (YYYY-MM-DD)"),
+    limite: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
     service: AgendamentoService = Depends(get_agendamento_service),
 ):
-    return await service.listar(cliente_id, profissional_id, data)
+    return await service.listar(
+        cliente_id, profissional_id, data, skip=offset, limit=limite
+    )
 
 
 @router.get(

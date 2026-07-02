@@ -12,8 +12,13 @@ class UsuarioService:
     def __init__(self, repository: AbstractRepository) -> None:
         self._repo = repository
 
-    async def listar(self, filtros: dict[str, Any] | None = None) -> list[dict[str, Any]]:
-        return await self._repo.list(filtros)
+    async def listar(
+        self,
+        filtros: dict[str, Any] | None = None,
+        skip: int = 0,
+        limit: int | None = None,
+    ) -> list[dict[str, Any]]:
+        return await self._repo.list(filtros, skip=skip, limit=limit)
 
     async def buscar(self, usuario_id: str) -> dict[str, Any]:
         usuario = await self._repo.get_by_id(usuario_id)

@@ -16,7 +16,12 @@ class AbstractRepository(ABC):
         ...
 
     @abstractmethod
-    async def list(self, filters: dict[str, Any] | None = None) -> list[dict[str, Any]]:
+    async def list(
+        self,
+        filters: dict[str, Any] | None = None,
+        skip: int = 0,
+        limit: int | None = None,
+    ) -> list[dict[str, Any]]:
         ...
 
     @abstractmethod

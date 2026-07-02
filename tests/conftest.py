@@ -33,12 +33,21 @@ class FakeRepository(AbstractRepository):
         doc = self._data.get(id)
         return dict(doc) if doc else None
 
-    async def list(self, filters: dict[str, Any] | None = None) -> list[dict[str, Any]]:
+    async def list(
+        self,
+        filters: dict[str, Any] | None = None,
+        skip: int = 0,
+        limit: int | None = None,
+    ) -> list[dict[str, Any]]:
         resultado = []
         for doc in self._data.values():
             if filters and not _matches(doc, filters):
                 continue
             resultado.append(dict(doc))
+        if skip:
+            resultado = resultado[skip:]
+        if limit is not None:
+            resultado = resultado[:limit]
         return resultado
 
     async def update(self, id: str, data: dict[str, Any]) -> dict[str, Any] | None:

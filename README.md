@@ -73,6 +73,9 @@ Legenda de acesso: **🔓 público** · **autenticado** (qualquer perfil logado)
 
 Prefixo base: `/api/v1`.
 
+As listagens de usuários e agendamentos aceitam paginação via `limite`
+(1–200, padrão 50) e `offset` (padrão 0).
+
 ### Autenticação
 | Método | Rota | Acesso | Descrição |
 |--------|------|--------|-----------|
