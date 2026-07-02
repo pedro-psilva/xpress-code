@@ -5,7 +5,11 @@ from fastapi import APIRouter, Depends, Query, status
 
 from app.core.auth import require_staff
 from app.core.dependencies import get_agendamento_service
-from app.models.agendamento import AgendamentoCreate, AgendamentoOut
+from app.models.agendamento import (
+    AgendamentoCreate,
+    AgendamentoOut,
+    AgendamentoReagendar,
+)
 from app.services.agendamento_service import AgendamentoService
 
 router = APIRouter(
@@ -56,6 +60,19 @@ async def criar(
     service: AgendamentoService = Depends(get_agendamento_service),
 ):
     return await service.criar(payload)
+
+
+@router.post(
+    "/{agendamento_id}/reagendar",
+    response_model=AgendamentoOut,
+    summary="Reagenda (remarca) um agendamento",
+)
+async def reagendar(
+    agendamento_id: str,
+    payload: AgendamentoReagendar,
+    service: AgendamentoService = Depends(get_agendamento_service),
+):
+    return await service.reagendar(agendamento_id, payload.data_hora_inicio)
 
 
 @router.delete(

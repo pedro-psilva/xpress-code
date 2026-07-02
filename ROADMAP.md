@@ -32,7 +32,7 @@ Status: ⬜ pendente · 🟨 em andamento · ✅ concluído
 
 | # | Item | Status |
 |---|------|--------|
-| P2-12 | Reagendamento de agendamentos | ⬜ |
+| P2-12 | Reagendamento de agendamentos | ✅ |
 | P2-13 | Estratégia de backup do MongoDB | ⬜ |
 | P2-14 | Health check do deploy usar `/health/db` | ⬜ |
 | P2-15 | Booking self-service do cliente (web) | ⬜ |

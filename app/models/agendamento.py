@@ -23,6 +23,10 @@ class AgendamentoCreate(BaseModel):
     data_hora_inicio: datetime = Field(..., examples=["2026-06-01T14:00:00"])
 
 
+class AgendamentoReagendar(BaseModel):
+    data_hora_inicio: datetime = Field(..., examples=["2026-06-01T15:00:00"])
+
+
 class AgendamentoOut(BaseModel):
     id: str = Field(..., examples=["665f1b2c4a3e2f00deadbeef"])
     cliente_id: str

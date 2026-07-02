@@ -9,6 +9,7 @@ class TipoNotificacao(str, Enum):
     confirmacao = "confirmacao"
     lembrete = "lembrete"
     cancelamento = "cancelamento"
+    reagendamento = "reagendamento"
 
 
 class NotificacaoOut(BaseModel):

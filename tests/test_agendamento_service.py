@@ -121,6 +121,38 @@ async def test_agendamento_fora_da_jornada_levanta_validation(make_repo):
         )
 
 
+async def test_reagendar_move_o_horario(make_repo):
+    service, servico, cliente, prof, _ = await _montar(make_repo)
+    criado = await service.criar(
+        _payload(cliente, prof, servico, datetime(2026, 6, 1, 14, 0))
+    )
+    remarcado = await service.reagendar(criado["id"], datetime(2026, 6, 1, 16, 0))
+    assert remarcado["data_hora_inicio"] > criado["data_hora_inicio"]
+    assert remarcado["data_hora_fim"] - remarcado["data_hora_inicio"] == timedelta(
+        minutes=30
+    )
+
+
+async def test_reagendar_para_horario_ocupado_levanta_conflito(make_repo):
+    service, servico, cliente, prof, _ = await _montar(make_repo)
+    await service.criar(_payload(cliente, prof, servico, datetime(2026, 6, 1, 14, 0)))
+    outro = await service.criar(
+        _payload(cliente, prof, servico, datetime(2026, 6, 1, 16, 0))
+    )
+    with pytest.raises(ConflictError):
+        await service.reagendar(outro["id"], datetime(2026, 6, 1, 14, 15))
+
+
+async def test_reagendar_cancelado_levanta_validation(make_repo):
+    service, servico, cliente, prof, _ = await _montar(make_repo)
+    criado = await service.criar(
+        _payload(cliente, prof, servico, datetime(2026, 6, 1, 14, 0))
+    )
+    await service.cancelar(criado["id"])
+    with pytest.raises(ValidationError):
+        await service.reagendar(criado["id"], datetime(2026, 6, 1, 16, 0))
+
+
 async def test_criar_agendamento_gera_notificacao_de_confirmacao(make_repo):
     ag, sv, us, jr = make_repo(), make_repo(), make_repo(), make_repo()
     notif_repo = make_repo()

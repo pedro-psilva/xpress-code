@@ -109,7 +109,11 @@ class AgendamentoService:
             )
 
     async def _validar_conflito(
-        self, profissional_id: str, inicio: datetime, fim: datetime
+        self,
+        profissional_id: str,
+        inicio: datetime,
+        fim: datetime,
+        ignorar_id: str | None = None,
     ) -> None:
         """Rejeita sobreposição de horário do mesmo profissional.
 
@@ -119,12 +123,44 @@ class AgendamentoService:
         """
         existentes = await self._repo.list({"profissional_id": profissional_id})
         for ag in existentes:
+            if ag["id"] == ignorar_id:
+                continue
             if ag.get("status") == StatusAgendamento.cancelado.value:
                 continue
             if inicio < ag["data_hora_fim"] and fim > ag["data_hora_inicio"]:
                 raise ConflictError(
                     "O profissional já possui um agendamento nesse horário."
                 )
+
+    async def reagendar(
+        self, agendamento_id: str, novo_inicio: datetime
+    ) -> dict[str, Any]:
+        agendamento = await self._repo.get_by_id(agendamento_id)
+        if agendamento is None:
+            raise NotFoundError("Agendamento não encontrado.")
+        if agendamento["status"] != StatusAgendamento.agendado.value:
+            raise ValidationError("Só é possível reagendar um agendamento ativo.")
+        servico = await self._servico_repo.get_by_id(agendamento["servico_id"])
+        if servico is None:
+            raise ValidationError("O serviço do agendamento não existe mais.")
+
+        inicio = para_utc(novo_inicio)
+        fim = inicio + timedelta(minutes=int(servico["duracao_minutos"]))
+        await self._validar_jornada(agendamento["profissional_id"], inicio, fim)
+        await self._validar_conflito(
+            agendamento["profissional_id"], inicio, fim, ignorar_id=agendamento_id
+        )
+        atualizado = await self._repo.update(
+            agendamento_id, {"data_hora_inicio": inicio, "data_hora_fim": fim}
+        )
+        await self._notificacao_service.criar(
+            usuario_id=agendamento["cliente_id"],
+            tipo=TipoNotificacao.reagendamento,
+            titulo="Agendamento remarcado",
+            mensagem="Seu agendamento foi remarcado.",
+            agendamento_id=agendamento_id,
+        )
+        return atualizado
 
     async def cancelar(self, agendamento_id: str) -> None:
         """Cancelamento lógico: status -> cancelado (preserva o histórico)."""

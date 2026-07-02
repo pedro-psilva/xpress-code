@@ -115,6 +115,7 @@ profissionais podem ser agendados para ele; vazia significa qualquer profissiona
 | GET    | `/agendamentos`             | autenticado | Lista (filtros: `cliente_id`, `profissional_id`, `data`) |
 | GET    | `/agendamentos/{id}`        | autenticado | Busca por ID |
 | POST   | `/agendamentos`             | autenticado | Cria (valida cliente/profissional/serviço, jornada e conflito; calcula término) |
+| POST   | `/agendamentos/{id}/reagendar` | autenticado | Remarca (valida jornada e conflito) |
 | DELETE | `/agendamentos/{id}`        | autenticado | Cancela (status → `cancelado`) |
 | POST   | `/agendamentos/{id}/concluir` | autenticado | Marca como concluído |
 | POST   | `/agendamentos/{id}/no-show`  | autenticado | Registra que o cliente não compareceu |
