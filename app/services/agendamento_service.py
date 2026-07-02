@@ -58,6 +58,12 @@ class AgendamentoService:
         if await self._usuario_repo.get_by_id(data.profissional_id) is None:
             raise ValidationError("Profissional informado não existe.")
 
+        permitidos = servico.get("profissionais_ids") or []
+        if permitidos and data.profissional_id not in permitidos:
+            raise ValidationError(
+                "Este profissional não realiza o serviço selecionado."
+            )
+
         inicio = para_utc(data.data_hora_inicio)
         fim = inicio + timedelta(minutes=int(servico["duracao_minutos"]))
 

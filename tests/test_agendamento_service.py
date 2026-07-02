@@ -116,3 +116,22 @@ async def test_agendamento_fora_da_jornada_levanta_validation(make_repo):
         await service.criar(
             _payload(cliente, prof, servico, datetime(2026, 6, 1, 14, 0))
         )
+
+
+async def test_profissional_nao_vinculado_ao_servico_levanta_validation(make_repo):
+    ag, sv, us, jr = make_repo(), make_repo(), make_repo(), make_repo()
+    outro = await us.create({"nome": "Outro", "email": "o@e.com", "perfil": "profissional"})
+    prof = await us.create({"nome": "Prof", "email": "p@e.com", "perfil": "profissional"})
+    cliente = await us.create({"nome": "Cli", "email": "c@e.com", "perfil": "cliente"})
+    servico = await sv.create(
+        {
+            "nome": "Corte",
+            "preco": 40.0,
+            "duracao_minutos": 30,
+            "ativo": True,
+            "profissionais_ids": [outro["id"]],
+        }
+    )
+    service = AgendamentoService(ag, sv, us, JornadaService(jr, us))
+    with pytest.raises(ValidationError):
+        await service.criar(_payload(cliente, prof, servico, datetime(2026, 6, 1, 14, 0)))

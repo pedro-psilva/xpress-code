@@ -7,6 +7,10 @@ class ServicoBase(BaseModel):
     preco: float = Field(..., ge=0, examples=[45.0])
     duracao_minutos: int = Field(..., gt=0, examples=[30])
     ativo: bool = Field(default=True)
+    profissionais_ids: list[str] = Field(
+        default_factory=list,
+        description="Profissionais que realizam o serviço; vazio = qualquer um.",
+    )
 
 
 class ServicoCreate(ServicoBase):
