@@ -1,7 +1,6 @@
 """Interface abstrata de repositório (DIP / ISP).
 
 Os serviços dependem desta abstração, nunca do driver do MongoDB diretamente.
-Implementações concretas (uma por coleção) chegam no M1.
 """
 from abc import ABC, abstractmethod
 from typing import Any

@@ -1,7 +1,6 @@
 # Xpress Code — Sistema de Gestão de Barbearia
 
 SaaS de gestão para barbearias: agendamentos, catálogo de serviços e usuários.
-Trabalho Prático Semestral — *Arquitetura de Aplicações Web (2026.1)*.
 
 ## Stack
 
@@ -113,10 +112,6 @@ Testes unitários da camada de serviço (pytest), sem depender do MongoDB:
 ```bash
 pytest
 ```
-
-## Princípios SOLID
-
-A aplicação dos princípios está documentada em [SOLID.md](./SOLID.md).
 
 ## Variáveis de ambiente
 

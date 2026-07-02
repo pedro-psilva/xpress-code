@@ -1,4 +1,4 @@
-"""Rotas de health check — úteis para validar a infra do M0."""
+"""Rotas de health check — úteis para validar a infraestrutura."""
 from fastapi import APIRouter
 
 from app.core.database import get_database

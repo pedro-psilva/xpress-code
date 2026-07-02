@@ -2,7 +2,7 @@
 
 Todos os valores são lidos de variáveis de ambiente / arquivo .env
 (carregado via python-dotenv pelo pydantic-settings). Nada de segredos
-hardcoded no código-fonte — ver escopo.md §5 (Imutabilidade e Segurança).
+hardcoded no código-fonte.
 """
 from typing import Annotated
 
@@ -43,7 +43,7 @@ class Settings(BaseSettings):
             return [origem.strip() for origem in value.split(",") if origem.strip()]
         return value
 
-    # JWT (usado a partir do M2)
+    # JWT
     jwt_secret: str = ""
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 60

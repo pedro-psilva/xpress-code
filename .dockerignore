@@ -20,11 +20,7 @@ tests/
 docker-compose.yml
 pytest.ini
 README.md
-SOLID.md
 CLAUDE.md
 PRIORIZACAO.md
-escopo.md
-TrabalhoPraticoSemestral.md
-ROTEIRO_APRESENTACAO.md
 Dockerfile
 .dockerignore

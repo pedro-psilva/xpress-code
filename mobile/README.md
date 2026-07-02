@@ -3,7 +3,7 @@
 App da Xpress Code construído como **base única em React Native + Expo**, com
 três alvos:
 
-- **Web** — SPA gerado pelo Expo (atende o requisito §5 da disciplina).
+- **Web** — SPA gerado pelo Expo.
 - **iOS** — via Safari por enquanto; build nativo iOS depende de Mac/EAS.
 - **Android** — Expo Go ou build nativo via EAS.
 
