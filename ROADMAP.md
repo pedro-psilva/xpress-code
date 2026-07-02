@@ -22,9 +22,9 @@ Status: ⬜ pendente · 🟨 em andamento · ✅ concluído
 |---|------|--------|
 | P1-6 | Lembretes automáticos (scheduler) | ⬜ |
 | P1-7 | Hardening: rate limiting + proteções de borda | ✅ |
-| P1-8 | Paginação nas listagens | ⬜ |
+| P1-8 | Paginação nas listagens | ✅ |
 | P1-9 | Observabilidade (logs estruturados + error tracking) | ⬜ |
-| P1-10 | CI (GitHub Actions: pytest + lint) | ⬜ |
+| P1-10 | CI (GitHub Actions: pytest + lint) | ✅ |
 | P1-11 | Auth completa (reset de senha, refresh token, seed seguro) | ⬜ |
 
 ## P2 — Polimento / evolução
@@ -51,6 +51,14 @@ Status: ⬜ pendente · 🟨 em andamento · ✅ concluído
 ## Log de evoluções
 
 Ordem cronológica inversa (mais recente no topo).
+
+### 2026-07-01 — P1 em andamento (CI + paginação)
+
+- **P1-10 (CI):** GitHub Actions rodando `compileall` + `pytest` em Python
+  3.11/3.12 em push na main e em PRs.
+- **P1-8 (paginação):** `AbstractRepository.list` com `skip`/`limit`; rotas
+  `GET /usuarios` e `/agendamentos` com `limite` (1–200) e `offset`.
+- **Testes:** 39 passando.
 
 ### 2026-07-01 — Núcleo de agendamento (P0 completo)
 
