@@ -20,12 +20,13 @@ Status: ⬜ pendente · 🟨 em andamento · ✅ concluído
 
 | # | Item | Status |
 |---|------|--------|
-| P1-6 | Lembretes automáticos (scheduler) | ⬜ |
+| P1-6 | Lembretes automáticos (via cron externo) | ✅ |
 | P1-7 | Hardening: rate limiting + proteções de borda | ✅ |
 | P1-8 | Paginação nas listagens | ✅ |
 | P1-9 | Observabilidade (logs estruturados + error tracking) | ⬜ |
 | P1-10 | CI (GitHub Actions: pytest + lint) | ✅ |
 | P1-11 | Auth completa (reset de senha, refresh token, seed seguro) | ⬜ |
+| P1-17 | Notificações in-app (central de notificações) | ✅ |
 
 ## P2 — Polimento / evolução
 
@@ -51,6 +52,17 @@ Status: ⬜ pendente · 🟨 em andamento · ✅ concluído
 ## Log de evoluções
 
 Ordem cronológica inversa (mais recente no topo).
+
+### 2026-07-01 — Notificações in-app + lembretes
+
+- **P1-17 (notificações in-app):** entidade Notificacao escopada ao usuário
+  (lista, contagem, marcar lida) com proteção IDOR; agendamento gera
+  confirmação/cancelamento automaticamente.
+- **P1-6 (lembretes):** `POST /lembretes/processar` protegido por `CRON_TOKEN`
+  (comparação timing-safe), idempotente, envia in-app + Brevo + WhatsApp para
+  agendamentos próximos. Disparo via cron externo (evita o problema do Fly
+  escalando a zero com scheduler in-process).
+- **Testes:** 47 passando (+ E2E HTTP de notificações/IDOR e do cron de lembretes).
 
 ### 2026-07-01 — P1 em andamento (CI + paginação)
 

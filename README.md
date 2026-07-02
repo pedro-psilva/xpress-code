@@ -136,6 +136,27 @@ Calcula os slots a partir da jornada menos os agendamentos ativos, respeitando a
 duração do serviço, o vínculo serviço↔profissional e o passo `SLOT_STEP_MINUTOS`
 (padrão 15). É o motor consumido pelo app e pela IA do WhatsApp.
 
+### Notificações in-app
+| Método | Rota | Acesso | Descrição |
+|--------|------|--------|-----------|
+| GET    | `/notificacoes`                  | autenticado | Lista as notificações do usuário logado (`apenas_nao_lidas`, `limite`, `offset`) |
+| GET    | `/notificacoes/nao-lidas/contagem` | autenticado | Contagem para o badge |
+| POST   | `/notificacoes/{id}/lida`        | autenticado | Marca uma como lida (só o dono) |
+| POST   | `/notificacoes/lidas`            | autenticado | Marca todas como lidas |
+
+Criar e cancelar um agendamento gera automaticamente uma notificação para o
+cliente.
+
+### Lembretes
+| Método | Rota | Acesso | Descrição |
+|--------|------|--------|-----------|
+| POST   | `/lembretes/processar` | header `X-Cron-Token` | Envia lembretes dos agendamentos próximos (`antecedencia_horas`, padrão 24) |
+
+Endpoint idempotente pensado para um cron externo (ex.: máquina agendada do
+Fly, GitHub Actions schedule ou serviço de cron) que envia o header
+`X-Cron-Token` igual a `CRON_TOKEN`. Cada lembrete dispara notificação in-app +
+e-mail (Brevo) + WhatsApp, uma única vez por agendamento.
+
 ## Testes
 
 Testes unitários da camada de serviço (pytest), sem depender do MongoDB:

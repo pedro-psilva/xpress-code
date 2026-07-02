@@ -16,6 +16,7 @@ from app.services.auth_service import AuthService
 from app.services.brevo_client import BrevoClient
 from app.services.infinitepay_client import InfinitePayClient
 from app.services.jornada_service import JornadaService
+from app.services.lembrete_service import LembreteService
 from app.services.notificacao_service import NotificacaoService
 from app.services.notification_service import NotificationService
 from app.services.plano_service import PlanoService
@@ -95,6 +96,17 @@ def get_whatsapp_service(
         usuario_service=get_usuario_service(db),
         servico_service=get_servico_service(db),
         agendamento_service=get_agendamento_service(db),
+    )
+
+
+def get_lembrete_service(
+    db: AsyncIOMotorDatabase = Depends(get_database),
+) -> LembreteService:
+    return LembreteService(
+        agendamento_repo=MongoRepository(db["agendamentos"]),
+        usuario_repo=MongoRepository(db["usuarios"]),
+        notificacao_service=get_notificacao_service(db),
+        notification_service=NotificationService(BrevoClient(), WhatsAppClient()),
     )
 
 

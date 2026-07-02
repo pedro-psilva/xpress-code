@@ -40,3 +40,7 @@ def dia_semana_local(momento: datetime) -> int:
 
 def data_local(momento: datetime) -> date:
     return momento.astimezone(business_tz()).date()
+
+
+def formatar_local(momento: datetime) -> str:
+    return momento.astimezone(business_tz()).strftime("%d/%m/%Y às %H:%M")
