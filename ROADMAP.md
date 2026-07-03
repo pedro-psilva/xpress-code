@@ -54,6 +54,17 @@ Status: ⬜ pendente · 🟨 em andamento · ✅ concluído
 
 Ordem cronológica inversa (mais recente no topo).
 
+### 2026-07-02 — Editor de jornada de trabalho no app
+
+- **Jornada (frontend):** tela `Jornadas` (admin) no app Expo para configurar os
+  blocos de atendimento de cada profissional (`GET`/`PUT
+  /profissionais/{id}/jornada`). Fecha uma lacuna operacional: o backend da
+  jornada (P0-2) existia sem UI, então não havia como definir horários pelo app
+  — e agendamentos eram recusados por "fora da jornada".
+- Seletor de profissional carrega a jornada atual (404 = sem blocos), edição de
+  blocos (dia da semana + início/fim), adicionar/remover e salvar. Componente
+  `TimeInput` reutilizável; link de navegação só para admin.
+
 ### 2026-07-02 — Tela de relatórios no app (P2-16 frontend)
 
 - **P2-16 (frontend):** tela `Relatórios` (admin) no app Expo consumindo

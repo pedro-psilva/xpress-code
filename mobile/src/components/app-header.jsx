@@ -15,8 +15,11 @@ const LINKS = [
   { href: '/whatsapp', label: 'WhatsApp' },
 ];
 
-// Relatórios é restrito a admin (a rota do backend exige o perfil).
-const LINKS_ADMIN = [{ href: '/relatorios', label: 'Relatórios' }];
+// Restritos a admin (as rotas do backend exigem o perfil admin).
+const LINKS_ADMIN = [
+  { href: '/jornada', label: 'Jornadas' },
+  { href: '/relatorios', label: 'Relatórios' },
+];
 
 const SECUNDARIOS = [{ href: '/configuracoes', label: 'Configurações' }];
 
