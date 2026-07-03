@@ -6,7 +6,6 @@ Montam os serviços injetando repositórios concretos. É aqui que a abstração
 from fastapi import Depends
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from app.core.auth import get_current_user
 from app.core.config import settings
 from app.core.database import get_database
 from app.repositories.mongo_repository import MongoRepository
@@ -19,7 +18,6 @@ from app.services.brevo_client import BrevoClient
 from app.services.infinitepay_client import InfinitePayClient
 from app.services.jornada_service import JornadaService
 from app.services.lembrete_service import LembreteService
-from app.services.minha_agenda_service import MinhaAgendaService
 from app.services.notificacao_service import NotificacaoService
 from app.services.relatorio_service import RelatorioService
 from app.services.notification_service import NotificationService
@@ -124,20 +122,6 @@ def get_lembrete_service(
         usuario_repo=MongoRepository(db["usuarios"]),
         notificacao_service=get_notificacao_service(db),
         notification_service=NotificationService(BrevoClient(), WhatsAppClient()),
-    )
-
-
-def get_minha_agenda_service(
-    usuario: dict = Depends(get_current_user),
-    db: AsyncIOMotorDatabase = Depends(get_database),
-) -> MinhaAgendaService:
-    """Agenda self-service ligada ao usuário do token (identidade do servidor)."""
-    return MinhaAgendaService(
-        cliente_id=usuario["id"],
-        servico_service=get_servico_service(db),
-        usuario_service=get_usuario_service(db),
-        agendamento_service=get_agendamento_service(db),
-        disponibilidade_service=get_disponibilidade_service(db),
     )
 
 

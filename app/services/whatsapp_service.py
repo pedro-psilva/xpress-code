@@ -340,8 +340,6 @@ class WhatsAppService:
         return doc
 
     async def _criar_cliente(self, telefone: str, nome: str) -> dict[str, Any]:
-        # Email fake e senha aleatória — o cliente que vem pelo WhatsApp não
-        # precisa logar no app web. Ele se cadastra depois se quiser.
         payload = UsuarioCreate(
             nome=nome,
             email=f"wa-{telefone}@bot.xpresscode.com.br",

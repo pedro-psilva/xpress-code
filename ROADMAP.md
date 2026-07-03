@@ -4,7 +4,7 @@ Mapa de evolução do projeto para operar como produto de agendamento em produç
 Prioridades: **P0** (impeditivo — bug que causa prejuízo real), **P1** (necessário
 para operar), **P2** (polimento/evolução).
 
-Status: ⬜ pendente · 🟨 em andamento · ✅ concluído
+Status: ⬜ pendente · 🟨 em andamento · ✅ concluído · ❌ descartado
 
 ## P0 — Núcleo crítico (antes de qualquer cliente usar)
 
@@ -36,7 +36,7 @@ Status: ⬜ pendente · 🟨 em andamento · ✅ concluído
 | P2-12 | Reagendamento de agendamentos | ✅ |
 | P2-13 | Estratégia de backup do MongoDB (documentada) | ✅ |
 | P2-14 | Health check (`/health` liveness, `/health/db` 503) | ✅ |
-| P2-15 | Booking self-service do cliente — API `/me` ✅ · web ⬜ (frontend) | 🟨 |
+| ~~P2-15~~ | ~~Booking self-service do cliente (web)~~ — **descartado** (o cliente não tem conta) | ❌ |
 | P2-16 | Relatórios (faturamento, taxa de no-show) — backend + tela admin | ✅ |
 
 ---
@@ -45,6 +45,12 @@ Status: ⬜ pendente · 🟨 em andamento · ✅ concluído
 
 - **Sistema completo/self-contained** — sem Google Calendar. O motor de
   agendamento e de disponibilidade é interno.
+- **O cliente não tem conta e nunca acessa o app.** Ele é uma *entidade
+  gerenciada* — um registro (nome/telefone) criado pela equipe (`POST
+  /usuarios`) ou automaticamente pelo bot do WhatsApp (identificado pelo
+  telefone). Não há auto-registro nem login de cliente; o app é exclusivo da
+  equipe (admin/profissional). Por isso o booking self-service (P2-15) foi
+  descartado.
 - **Notificações no próprio app** (in-app), além das externas.
 - **Terceiros só para comunicação:** WhatsApp (IA respondendo com as
   disponibilidades via API Meta) e Brevo (confirmações por e-mail). O motor de

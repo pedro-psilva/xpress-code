@@ -31,7 +31,6 @@ from app.routers import (
     health,
     jornadas,
     lembretes,
-    minha_agenda,
     notificacoes,
     planos,
     relatorios,
@@ -100,7 +99,6 @@ app.include_router(servicos.router, prefix=settings.api_v1_prefix)
 app.include_router(planos.router, prefix=settings.api_v1_prefix)
 app.include_router(usuarios.router, prefix=settings.api_v1_prefix)
 app.include_router(agendamentos.router, prefix=settings.api_v1_prefix)
-app.include_router(minha_agenda.router, prefix=settings.api_v1_prefix)
 app.include_router(jornadas.router, prefix=settings.api_v1_prefix)
 app.include_router(disponibilidade.router, prefix=settings.api_v1_prefix)
 app.include_router(notificacoes.router, prefix=settings.api_v1_prefix)

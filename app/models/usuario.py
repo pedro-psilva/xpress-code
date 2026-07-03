@@ -35,14 +35,3 @@ class UsuarioOut(UsuarioBase):
 
     id: str = Field(..., examples=["665f1b2c4a3e2f0012345678"])
     criado_em: datetime
-
-
-class ProfissionalPublico(BaseModel):
-    """Projeção mínima de um profissional para o catálogo self-service.
-
-    Só id e nome — nada de e-mail/telefone/perfil (dados de terceiros não
-    devem vazar para o cliente que está agendando).
-    """
-
-    id: str = Field(..., examples=["665f1b2c4a3e2f0087654321"])
-    nome: str = Field(..., examples=["Maria Barbeira"])
