@@ -37,7 +37,7 @@ Status: ⬜ pendente · 🟨 em andamento · ✅ concluído
 | P2-13 | Estratégia de backup do MongoDB (documentada) | ✅ |
 | P2-14 | Health check (`/health` liveness, `/health/db` 503) | ✅ |
 | P2-15 | Booking self-service do cliente — API `/me` ✅ · web ⬜ (frontend) | 🟨 |
-| P2-16 | Relatórios (faturamento, taxa de no-show) | ✅ |
+| P2-16 | Relatórios (faturamento, taxa de no-show) — backend + tela admin | ✅ |
 
 ---
 
@@ -53,6 +53,17 @@ Status: ⬜ pendente · 🟨 em andamento · ✅ concluído
 ## Log de evoluções
 
 Ordem cronológica inversa (mais recente no topo).
+
+### 2026-07-02 — Tela de relatórios no app (P2-16 frontend)
+
+- **P2-16 (frontend):** tela `Relatórios` (admin) no app Expo consumindo
+  `GET /relatorios/resumo`: seletor de período (padrão últimos 30 dias) e
+  cartões de faturamento, atendimentos concluídos, taxa de no-show,
+  faltas e cancelamentos.
+- Componente `DateInput` reutilizável (web usa `<input type="date">`; nativo,
+  `TextInput`) e link de navegação exibido só para admin (header + menu mobile).
+- Datas de período formatadas sem `new Date` (evita deslocar o dia em fuso
+  negativo). Fecha o P2-16 (backend já estava pronto).
 
 ### 2026-07-02 — Booking self-service: API `/me` do cliente (P2-15 backend)
 

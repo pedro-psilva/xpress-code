@@ -371,6 +371,47 @@ export function DateTimeInput({ value, onChange }) {
   );
 }
 
+export function DateInput({ value, onChange }) {
+  const { tema } = useTheme();
+
+  if (Platform.OS === 'web') {
+    const estiloInput = {
+      colorScheme: tema === 'dark' ? 'dark' : 'light',
+      width: '100%',
+      borderRadius: 8,
+      borderWidth: 1,
+      paddingTop: 12,
+      paddingBottom: 12,
+      paddingLeft: 16,
+      paddingRight: 16,
+      fontSize: 16,
+      borderColor: tema === 'dark' ? '#44403c' : '#cbd5e1',
+      backgroundColor: tema === 'dark' ? '#1c1917' : '#ffffff',
+      color: tema === 'dark' ? '#f5f5f4' : '#1e293b',
+      fontFamily: 'inherit',
+    };
+    return (
+      <input
+        type="date"
+        value={value || ''}
+        onChange={(e) => onChange(e.target.value)}
+        style={estiloInput}
+      />
+    );
+  }
+
+  return (
+    <TextInput
+      value={value}
+      onChangeText={onChange}
+      placeholder="2026-05-01"
+      placeholderTextColor={tema === 'dark' ? '#78716c' : '#94a3b8'}
+      autoCapitalize="none"
+      className="w-full rounded-lg border border-slate-300 dark:border-stone-700 bg-white dark:bg-stone-900 px-4 py-3 text-base text-slate-800 dark:text-stone-100"
+    />
+  );
+}
+
 export function Table({ columns, rows, keyExtractor, onRowPress }) {
   return (
     <>

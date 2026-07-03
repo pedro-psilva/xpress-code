@@ -15,6 +15,9 @@ const LINKS = [
   { href: '/whatsapp', label: 'WhatsApp' },
 ];
 
+// Relatórios é restrito a admin (a rota do backend exige o perfil).
+const LINKS_ADMIN = [{ href: '/relatorios', label: 'Relatórios' }];
+
 const SECUNDARIOS = [{ href: '/configuracoes', label: 'Configurações' }];
 
 function NavLink({ href, label, ativo, onPress }) {
@@ -112,10 +115,12 @@ function MobileMenu({ aberto, fechar, pathname, links, onLogout }) {
 export function AppHeader() {
   const pathname = usePathname();
   const router = useRouter();
-  const { logout } = useAuth();
+  const { logout, isAdmin } = useAuth();
   const { tema } = useTheme();
   const monograma = useBrandLogo('monograma');
   const [menuAberto, setMenuAberto] = useState(false);
+
+  const links = isAdmin ? [...LINKS, ...LINKS_ADMIN] : LINKS;
 
   function onLogout() {
     logout();
@@ -153,7 +158,7 @@ export function AppHeader() {
 
         {/* Nav horizontal a partir de sm: */}
         <View className="hidden flex-row items-center gap-1 sm:flex">
-          {LINKS.map((link) => (
+          {links.map((link) => (
             <NavLink
               key={link.href}
               href={link.href}
@@ -189,7 +194,7 @@ export function AppHeader() {
         aberto={menuAberto}
         fechar={() => setMenuAberto(false)}
         pathname={pathname}
-        links={LINKS}
+        links={links}
         onLogout={onLogout}
       />
     </SafeAreaView>
