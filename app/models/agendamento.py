@@ -23,6 +23,18 @@ class AgendamentoCreate(BaseModel):
     data_hora_inicio: datetime = Field(..., examples=["2026-06-01T14:00:00"])
 
 
+class AgendamentoClienteCreate(BaseModel):
+    """Corpo do agendamento self-service: o cliente é o próprio usuário logado.
+
+    Diferente de `AgendamentoCreate`, não carrega `cliente_id` — a identidade é
+    fixada no servidor a partir do token (guard rail contra agendar por outro).
+    """
+
+    profissional_id: str = Field(..., examples=["665f1b2c4a3e2f0087654321"])
+    servico_id: str = Field(..., examples=["665f1b2c4a3e2f00aabbccdd"])
+    data_hora_inicio: datetime = Field(..., examples=["2026-06-01T14:00:00"])
+
+
 class AgendamentoReagendar(BaseModel):
     data_hora_inicio: datetime = Field(..., examples=["2026-06-01T15:00:00"])
 

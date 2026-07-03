@@ -36,7 +36,7 @@ Status: ⬜ pendente · 🟨 em andamento · ✅ concluído
 | P2-12 | Reagendamento de agendamentos | ✅ |
 | P2-13 | Estratégia de backup do MongoDB (documentada) | ✅ |
 | P2-14 | Health check (`/health` liveness, `/health/db` 503) | ✅ |
-| P2-15 | Booking self-service do cliente (web) | ⬜ (frontend) |
+| P2-15 | Booking self-service do cliente — API `/me` ✅ · web ⬜ (frontend) | 🟨 |
 | P2-16 | Relatórios (faturamento, taxa de no-show) | ✅ |
 
 ---
@@ -53,6 +53,27 @@ Status: ⬜ pendente · 🟨 em andamento · ✅ concluído
 ## Log de evoluções
 
 Ordem cronológica inversa (mais recente no topo).
+
+### 2026-07-02 — Booking self-service: API `/me` do cliente (P2-15 backend)
+
+- **P2-15 (backend):** superfície HTTP `/me` para o próprio cliente autenticado
+  agendar sozinho, destravando o booking self-service no app. Camadas:
+  - `MinhaAgendaService` — agenda escopada ao `cliente_id` do token; catálogo de
+    serviços ativos, profissionais (só id+nome), disponibilidade e CRUD dos
+    próprios agendamentos. Reaproveita os mesmos guard rails de `AgendaTools`
+    (bot do WhatsApp): posse verificada em cancelar/reagendar (IDOR → NotFound).
+  - Router `minha_agenda` (`/me/servicos`, `/me/profissionais`,
+    `/me/disponibilidade`, `/me/agendamentos` [GET/POST], `.../reagendar`,
+    `.../{id}` DELETE), guardado por `get_current_user`.
+  - `AgendamentoClienteCreate` (payload sem `cliente_id`) e `ProfissionalPublico`
+    (projeção que não vaza e-mail/telefone de terceiros).
+- **Guard rails:** identidade fixada no servidor (id vem do token, nunca do
+  corpo); mutações passam pelos serviços de domínio (jornada, conflito,
+  double-booking). Endpoints da equipe (`/agendamentos`, `/disponibilidade`)
+  seguem restritos a staff — o cliente usa só `/me`.
+- **Pendência:** a página pública/guest de auto-agendamento no app Expo continua
+  sendo trabalho de frontend; o backend agora dá suporte completo.
+- **Testes:** 81 passando (+9 de `MinhaAgendaService`).
 
 ### 2026-07-01 — Bot WhatsApp com IA (Gemini) + guard rails
 
