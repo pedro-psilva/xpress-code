@@ -371,8 +371,6 @@ export function DateTimeInput({ value, onChange }) {
   );
 }
 
-// Estilo do <input> nativo do navegador (date/time), que não aceita classes
-// Tailwind. Alinha cores e espaçamento com os campos RN da UI.
 function estiloInputWeb(tema) {
   const escuro = tema === 'dark';
   return {

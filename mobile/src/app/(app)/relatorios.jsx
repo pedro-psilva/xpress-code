@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Text, View } from 'react-native';
 
 import { getErrorMessage } from '@/api/client';
@@ -18,7 +18,6 @@ import {
 } from '@/components/ui';
 import { formatarPreco } from '@/lib/format';
 
-// Data local (YYYY-MM-DD) de `n` dias atrás — usada para o período padrão.
 function isoDiasAtras(n) {
   const d = new Date();
   d.setDate(d.getDate() - n);
@@ -33,8 +32,6 @@ function formatarPercentual(fracao) {
   return `${(Number(fracao) * 100).toFixed(1)}%`;
 }
 
-// Formata uma data "YYYY-MM-DD" sem passar por `new Date` (que interpreta a
-// string como UTC e desloca o dia em fusos negativos, como o do Brasil).
 function formatarDataIso(ymd) {
   const [ano, mes, dia] = String(ymd).split('-');
   return `${dia}/${mes}/${ano}`;
@@ -45,43 +42,25 @@ export default function RelatoriosScreen() {
   const [inicio, setInicio] = useState(() => isoDiasAtras(30));
   const [fim, setFim] = useState(() => hojeIso());
   const [resumo, setResumo] = useState(null);
-  // Começa carregando para admin: o período padrão é buscado no efeito abaixo.
-  const [loading, setLoading] = useState(isAdmin);
+  const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState('');
 
-  // Busca o resumo do período atual. Toda escrita de estado acontece nos
-  // callbacks da promise (nunca de forma síncrona), para poder ser chamada
-  // com segurança de dentro do efeito de montagem.
-  const buscar = useCallback(
-    () =>
-      resumoRelatorio({ inicio, fim })
-        .then((r) => {
-          setResumo(r);
-          setErro('');
-        })
-        .catch((e) => {
-          setErro(getErrorMessage(e));
-          setResumo(null);
-        })
-        .finally(() => setLoading(false)),
-    [inicio, fim],
-  );
-
-  // Ação do botão (event handler → pode ligar o loading de forma síncrona).
-  function gerar() {
+  async function gerar() {
     if (!inicio || !fim) {
       setErro('Informe as datas inicial e final.');
       return;
     }
     setLoading(true);
-    buscar();
+    setErro('');
+    try {
+      setResumo(await resumoRelatorio({ inicio, fim }));
+    } catch (e) {
+      setErro(getErrorMessage(e));
+      setResumo(null);
+    } finally {
+      setLoading(false);
+    }
   }
-
-  // Carrega o período padrão (últimos 30 dias) na abertura.
-  useEffect(() => {
-    if (isAdmin) buscar();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAdmin]);
 
   if (!isAdmin) {
     return (

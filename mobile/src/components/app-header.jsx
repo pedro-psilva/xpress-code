@@ -15,7 +15,6 @@ const LINKS = [
   { href: '/whatsapp', label: 'WhatsApp' },
 ];
 
-// Restritos a admin (as rotas do backend exigem o perfil admin).
 const LINKS_ADMIN = [
   { href: '/jornada', label: 'Jornadas' },
   { href: '/relatorios', label: 'Relatórios' },

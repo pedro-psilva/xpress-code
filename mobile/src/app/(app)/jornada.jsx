@@ -20,7 +20,6 @@ import {
 } from '@/components/ui';
 import { toast } from '@/lib/toast';
 
-// 0=segunda … 6=domingo (mesma convenção do backend).
 const DIAS = [
   'Segunda',
   'Terça',
@@ -54,7 +53,6 @@ export default function JornadaScreen() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Troca de profissional é um event handler → pode escrever estado direto.
   function selecionarProfissional(id) {
     setProfissionalId(id);
     setErro('');
@@ -64,7 +62,6 @@ export default function JornadaScreen() {
     obterJornada(id)
       .then((j) => setBlocos(j.blocos ?? []))
       .catch((e) => {
-        // 404 = jornada ainda não definida: começa com lista vazia, sem erro.
         if (e?.response?.status === 404) setBlocos([]);
         else setErro(getErrorMessage(e));
       })
