@@ -1,4 +1,4 @@
-import { Redirect, useRouter } from 'expo-router';
+import { Link, Redirect, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Image, Text, View } from 'react-native';
 
@@ -66,6 +66,12 @@ export default function LoginScreen() {
           />
         </View>
       </Card>
+      <Link
+        href="/politicas-de-privacidade"
+        className="mt-6 text-sm text-slate-500 dark:text-stone-400"
+      >
+        Política de Privacidade
+      </Link>
     </View>
   );
 }
