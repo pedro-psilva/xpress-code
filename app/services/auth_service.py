@@ -7,6 +7,7 @@ from app.core.security import (
     criar_refresh_token,
     criar_reset_token,
     decodificar_token,
+    gerar_jti,
     hash_senha,
     verificar_senha,
 )
@@ -27,32 +28,51 @@ class AuthService:
             raise UnauthorizedError("E-mail ou senha inválidos.")
         usuario = usuarios[0]
         access = criar_access_token(subject=usuario["id"], perfil=usuario["perfil"])
-        refresh = criar_refresh_token(subject=usuario["id"])
+        refresh = criar_refresh_token(
+            subject=usuario["id"], version=usuario.get("token_version", 0)
+        )
         return access, refresh, usuario["perfil"]
 
     async def renovar(self, refresh_token: str) -> str:
         payload = self._decodificar(refresh_token, "refresh")
         usuario = await self._repo.get_by_id(payload["sub"])
-        if usuario is None:
+        if usuario is None or payload.get("ver", 0) != usuario.get("token_version", 0):
             raise UnauthorizedError("Token inválido ou expirado.")
         return criar_access_token(subject=usuario["id"], perfil=usuario["perfil"])
+
+    async def logout(self, usuario_id: str) -> None:
+        usuario = await self._repo.get_by_id(usuario_id)
+        if usuario is None:
+            raise UnauthorizedError("Token inválido ou expirado.")
+        await self._repo.update(
+            usuario_id, {"token_version": usuario.get("token_version", 0) + 1}
+        )
 
     async def solicitar_reset(self, email: str) -> None:
         usuarios = await self._repo.list({"email": email})
         if not usuarios:
             return
         usuario = usuarios[0]
+        jti = gerar_jti()
+        await self._repo.update(usuario["id"], {"reset_jti": jti})
         await self._notification.enviar_reset_senha(
-            usuario, criar_reset_token(subject=usuario["id"])
+            usuario, criar_reset_token(subject=usuario["id"], jti=jti)
         )
 
     async def redefinir_senha(self, token: str, nova_senha: str) -> None:
         payload = self._decodificar(token, "reset")
-        atualizado = await self._repo.update(
-            payload["sub"], {"senha_hash": hash_senha(nova_senha)}
-        )
-        if atualizado is None:
+        usuario = await self._repo.get_by_id(payload["sub"])
+        jti = payload.get("jti")
+        if usuario is None or not jti or jti != usuario.get("reset_jti"):
             raise UnauthorizedError("Token inválido ou expirado.")
+        await self._repo.update(
+            usuario["id"],
+            {
+                "senha_hash": hash_senha(nova_senha),
+                "reset_jti": None,
+                "token_version": usuario.get("token_version", 0) + 1,
+            },
+        )
 
     def _decodificar(self, token: str, tipo: str) -> dict:
         try:

@@ -75,3 +75,43 @@ async def test_redefinir_rejeita_token_que_nao_e_reset(make_repo):
     _access, refresh, _perfil = await service.autenticar("admin@ex.com", "senha123")
     with pytest.raises(UnauthorizedError):
         await service.redefinir_senha(refresh, "novasenha")
+
+
+async def test_reset_token_single_use(make_repo):
+    notif = _NotificacaoFake()
+    service, _ = await _com_usuario(make_repo, notif)
+    await service.solicitar_reset("admin@ex.com")
+    token = notif.reset_token
+    await service.redefinir_senha(token, "novasenha")
+    with pytest.raises(UnauthorizedError):
+        await service.redefinir_senha(token, "outrasenha")
+
+
+async def test_reset_novo_invalida_o_anterior(make_repo):
+    notif = _NotificacaoFake()
+    service, _ = await _com_usuario(make_repo, notif)
+    await service.solicitar_reset("admin@ex.com")
+    token_antigo = notif.reset_token
+    await service.solicitar_reset("admin@ex.com")
+    with pytest.raises(UnauthorizedError):
+        await service.redefinir_senha(token_antigo, "novasenha")
+    await service.redefinir_senha(notif.reset_token, "novasenha")
+
+
+async def test_logout_revoga_refresh(make_repo):
+    service, repo = await _com_usuario(make_repo)
+    _access, refresh, _perfil = await service.autenticar("admin@ex.com", "senha123")
+    usuario = (await repo.list({"email": "admin@ex.com"}))[0]
+    await service.logout(usuario["id"])
+    with pytest.raises(UnauthorizedError):
+        await service.renovar(refresh)
+
+
+async def test_reset_senha_revoga_refresh(make_repo):
+    notif = _NotificacaoFake()
+    service, _ = await _com_usuario(make_repo, notif)
+    _access, refresh, _perfil = await service.autenticar("admin@ex.com", "senha123")
+    await service.solicitar_reset("admin@ex.com")
+    await service.redefinir_senha(notif.reset_token, "novasenha")
+    with pytest.raises(UnauthorizedError):
+        await service.renovar(refresh)

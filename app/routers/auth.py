@@ -1,6 +1,7 @@
 """Endpoints de autenticação."""
 from fastapi import APIRouter, Depends, Request, status
 
+from app.core.auth import get_current_user
 from app.core.dependencies import get_auth_service
 from app.core.rate_limit import limiter
 from app.models.auth import (
@@ -43,6 +44,18 @@ async def refresh(
     service: AuthService = Depends(get_auth_service),
 ):
     return AccessTokenResponse(access_token=await service.renovar(payload.refresh_token))
+
+
+@router.post(
+    "/logout",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Revoga os refresh tokens ativos do usuário (logout)",
+)
+async def logout(
+    usuario: dict = Depends(get_current_user),
+    service: AuthService = Depends(get_auth_service),
+):
+    await service.logout(usuario["id"])
 
 
 @router.post(

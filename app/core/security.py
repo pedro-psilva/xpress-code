@@ -3,6 +3,7 @@
 Usa a lib `bcrypt` diretamente (evita a incompatibilidade conhecida do
 passlib com bcrypt >= 4.1).
 """
+import secrets
 from datetime import datetime, timedelta, timezone
 
 import bcrypt
@@ -32,12 +33,22 @@ def criar_access_token(subject: str, perfil: str) -> str:
     )
 
 
-def criar_refresh_token(subject: str) -> str:
-    return _assinar({"sub": subject, "type": "refresh"}, settings.refresh_expire_minutes)
+def criar_refresh_token(subject: str, version: int = 0) -> str:
+    return _assinar(
+        {"sub": subject, "type": "refresh", "ver": version},
+        settings.refresh_expire_minutes,
+    )
 
 
-def criar_reset_token(subject: str) -> str:
-    return _assinar({"sub": subject, "type": "reset"}, settings.reset_expire_minutes)
+def criar_reset_token(subject: str, jti: str) -> str:
+    return _assinar(
+        {"sub": subject, "type": "reset", "jti": jti},
+        settings.reset_expire_minutes,
+    )
+
+
+def gerar_jti() -> str:
+    return secrets.token_urlsafe(16)
 
 
 def decodificar_token(token: str) -> dict:
