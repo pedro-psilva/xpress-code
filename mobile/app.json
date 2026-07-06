@@ -21,7 +21,7 @@
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/brand/monograma-x-escuro.png"
     },
     "plugins": [
       "expo-router",
