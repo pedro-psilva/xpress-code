@@ -5,8 +5,8 @@ SaaS de gestão para barbearias: agendamentos, catálogo de serviços e usuário
 ## Stack
 
 - **Backend:** Python 3.11+ / FastAPI
-- **Banco:** MongoDB (via Docker)
-- **Frontend:** React + Vite + Tailwind CSS (SPA com React Router e Axios)
+- **Banco:** MongoDB (local via Docker; Atlas em produção)
+- **Frontend:** Expo (React Native) — app universal Web/Android/iOS em `mobile/`
 - **Auth:** JWT (login/registro) + RBAC (perfis `admin` / `profissional` / `cliente`)
 
 ## Pré-requisitos
@@ -59,6 +59,67 @@ Com a API no ar, acesse a documentação interativa em:
 - **OpenAPI JSON:** http://localhost:8000/openapi.json
 
 Para validar a infraestrutura: `GET /health` e `GET /health/db`.
+
+## Deploy / Hospedagem (produção)
+
+> Instantâneo da infra em jun/2026. Custo de serviço: R$ 0/mês (tudo em free
+> tier) + ~R$ 40/ano do domínio.
+
+### URLs públicas
+
+| O quê | URL |
+|-------|-----|
+| API (FastAPI) | https://api.xpresscode.com.br |
+| App (Expo Web) | https://app.xpresscode.com.br (também `xpresscode.com.br` e `www.`) |
+| Repositório | https://github.com/pedro-psilva/xpress-code (privado, branch `main`) |
+
+### Onde cada peça roda
+
+| Componente | Hospedagem | Detalhes |
+|------------|-----------|----------|
+| Backend FastAPI | **OCI Always Free** | VM `xpress-code-api`, IP `163.176.162.160`, Ubuntu 22.04, shape `VM.Standard.E2.1.Micro` (1 OCPU / 1 GB RAM + 2 GB swap), AD-1 São Paulo |
+| Container do backend | **Docker** na VM | `xpress-code-api`, `--restart unless-stopped`, ouvindo só em `127.0.0.1:8000` |
+| Reverse proxy / HTTPS | **Caddy** na VM | `/etc/caddy/Caddyfile`, TLS automático (Let's Encrypt), security headers (HSTS preload, X-Frame DENY, nosniff) |
+| Banco | **MongoDB Atlas M0** (free) | Cluster `Cluster0`, região AWS-SP, user `xpress_api`, IP whitelist só com `163.176.162.160/32` |
+| App (Expo Web) | **Vercel** | Build do diretório `mobile/` |
+| DNS | **Registro.br** | `api` A→IP da VM · `app`/`www` CNAME→`cname.vercel-dns.com` · apex A→`76.76.21.21` |
+| Firewall | **UFW + OCI Security List** | Só 22/80/443 inbound |
+
+> O `fly.toml` na raiz é artefato de uma tentativa anterior no Fly.io e **não
+> reflete a hospedagem atual** (backend migrou para a VM OCI). As variáveis de
+> ambiente de produção ficam no `docker run` do container na VM — **não no Fly**.
+
+### Como fazer deploy
+
+- **Backend:** `ssh` na VM → `cd /home/ubuntu/xpress-code` → `git pull` → rebuild
+  e re-run do container Docker com os env vars de produção.
+- **App web:** `cd mobile && vercel --prod --yes`.
+- **Seed do banco:** `MONGO_URI=<atlas_uri> python -m scripts.seed` (idempotente).
+
+Para inspecionar os env vars atuais do container sem alterá-los:
+`sudo docker inspect xpress-code-api | grep -A1 Env`.
+
+### ⛔ Pendências de acesso/deploy
+
+Ainda não feito — depende de acesso SSH à VM Oracle, que hoje não temos:
+
+1. **Acesso SSH à VM** (pré-requisito dos itens abaixo)
+   - [ ] Colocar a chave `.pem` da instância OCI em `~/.ssh/` (perm. `600`)
+   - [ ] Confirmar usuário+host: `ubuntu@163.176.162.160` (Ubuntu) ou `opc@…` (Oracle Linux)
+   - [ ] Testar: `ssh -i ~/.ssh/oci-xpresscode.pem ubuntu@163.176.162.160 "echo ok"`
+2. **Mapear como o backend roda na VM** (pra montar o deploy certo)
+   - [ ] `systemctl status | grep -i uvicorn` ou `docker ps` — systemd ou container?
+   - [ ] Localizar o diretório do projeto e o `.env`
+   - [ ] Revisar `/etc/caddy/Caddyfile` (confirma o proxy reverso)
+3. **`BREVO_API_KEY` em produção** (sem ela, o envio de email é no-op)
+   - [ ] Gerar no Brevo: *SMTP & API → API Keys → Generate*
+   - [ ] Setar no `.env` do serviço **na VM** (não no Fly): `BREVO_API_KEY`,
+     `BREVO_SENDER_EMAIL=no-reply@xpresscode.com.br`,
+     `BREVO_SENDER_NAME=Barbearia Xpress Code`
+   - [ ] Reiniciar o serviço e testar (ex.: fluxo de esqueci-senha)
+4. **Automatizar o deploy** (depois de resolver o item 2)
+   - [ ] Workflow do GitHub Actions com deploy via SSH após o CI passar na `main`
+   - [ ] Secret `SSH_PRIVATE_KEY` + host em *Settings → Secrets → Actions*
 
 ## Autenticação e perfis (RBAC)
 
